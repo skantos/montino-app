@@ -1,0 +1,26 @@
+.body-tabla {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+  }
+main.table {
+    width: 100vw;
+    overflow: hidden;
+}
+
+.seleccionar-pago{
+  width: 200px;
+  height: 58px;
+  margin: 0px 10px;
+}
+
+.btn-editar{
+  height: 58px;
+  margin: 0px 10px;
+}
+
+.fecha{
+  height: 58px;
+  margin: 0px 10px;
+}

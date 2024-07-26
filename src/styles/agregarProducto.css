@@ -1,0 +1,49 @@
+.productos-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    max-width: 600px;
+    padding: 40px;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    box-sizing: border-box;
+    box-shadow: 0 15px 25px rgba(0,0,0,.6);
+    border-radius: 0px;
+}
+
+.nav{
+    z-index: 99;
+    position: sticky;
+}
+
+.productos-box .detalle{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.form-producto{
+    background-color: #fff;
+    border-radius: 0.5rem;
+}
+
+
+.input-producto{
+    position: relative;
+    margin: 5px 20px;
+}
+.input-producto input {
+    outline: none;
+    border: 1px solid #e5e7eb;
+    margin: 8px 0;
+}
+.input-producto input {
+    background-color: #fff;
+    padding: 1rem;
+    padding-right: 3rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    width: 220px;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
