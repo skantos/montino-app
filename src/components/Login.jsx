@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 import "../styles/login.css";
@@ -12,10 +12,19 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(""); // Clear previous errors
 
         try {
             await signIn(emailUsuario, passwordUsuario);
-            // Redirigir basándote en el rol del usuario
+        } catch (error) {
+            setError("Usuario o contraseña incorrectos");
+            console.error("Error al iniciar sesión:", error);
+        }
+    };
+
+    useEffect(() => {
+        // Redirigir basándote en el rol del usuario
+        if (role) {
             if (role === "admin") {
                 navigate("/ventas");
             } else if (role === "vendedor") {
@@ -23,11 +32,8 @@ function Login() {
             } else {
                 setError("Rol de usuario no reconocido");
             }
-        } catch (error) {
-            setError("Usuario o contraseña incorrectos");
-            console.error("Error al iniciar sesión:", error);
         }
-    };
+    }, [role, navigate]);
 
     return (
         <div>
