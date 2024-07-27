@@ -115,7 +115,7 @@ const Inventario = () => {
     e.preventDefault();
 
     try {
-      const productRef = doc(db, "products", formData.idProducto);
+      const productRef = doc(db, "productos", formData.idProducto);
       await updateDoc(productRef, {
         nombreProducto: formData.nombreProducto,
         precioProducto: Number(formData.precioProducto),
