@@ -31,11 +31,7 @@ export function AuthContextProvider({ children }) {
 
   const signIn = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setUser(userCredential.user);
 
       const userDoc = doc(db, "users", userCredential.user.uid);
