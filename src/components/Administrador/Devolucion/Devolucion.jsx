@@ -6,293 +6,290 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 
 const Ventas = () => {
-const [productos, setProductos] = useState([]);
-const [error, setError] = useState("");
-const [carrito, setCarrito] = useState([]);
-const [loading, setLoading] = useState(true);
-const [tipoPago, setTipoPago] = useState("efectivo");
-const [idProductoBuscado, setIdProductoBuscado] = useState("");
-const [cantidadBuscada, setCantidadBuscada] = useState(1);
+  const [productos, setProductos] = useState([]);
+  const [error, setError] = useState("");
+  const [carrito, setCarrito] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tipoPago, setTipoPago] = useState("efectivo");
+  const [idProductoBuscado, setIdProductoBuscado] = useState("");
+  const [cantidadBuscada, setCantidadBuscada] = useState(1);
 
-const { auth } = useContext(AuthContext);
-const userId = auth?.user?.idUsuario || localStorage.getItem("userId");
+  const { auth } = useContext(AuthContext);
+  const userId = auth?.user?.idUsuario || localStorage.getItem("userId");
 
-useEffect(() => {
+  useEffect(() => {
     let isMounted = true;
     const getProductos = async () => {
-    try {
+      try {
         const response = await axios.get("/products/products");
         if (isMounted) {
-        if (response.data.success && Array.isArray(response.data.products)) {
+          if (response.data.success && Array.isArray(response.data.products)) {
             setProductos(response.data.products);
-        } else {
+          } else {
             setError("Datos de productos no son un array.");
+          }
         }
-        }
-    } catch (error) {
+      } catch (error) {
         setError("Error al obtener los productos");
         console.error("Error al obtener los productos:", error);
-    } finally {
+      } finally {
         if (isMounted) {
-        setLoading(false);
+          setLoading(false);
         }
-    }
+      }
     };
 
     getProductos();
 
     return () => {
-    isMounted = false;
+      isMounted = false;
     };
-}, []);
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (idProductoBuscado.length > 0) {
-    const productoEncontrado = productos.find(
+      const productoEncontrado = productos.find(
         (producto) => String(producto.idProducto) === idProductoBuscado
-    );
+      );
 
-    if (productoEncontrado) {
+      if (productoEncontrado) {
         agregarAlCarrito(productoEncontrado, cantidadBuscada);
         setIdProductoBuscado("");
         setCantidadBuscada(1);
-    } else {
+      } else {
         setError("Producto no encontrado.");
 
         setTimeout(() => {
-        setError("");
-        setIdProductoBuscado("");
-        setCantidadBuscada(1);
+          setError("");
+          setIdProductoBuscado("");
+          setCantidadBuscada(1);
         }, 3000);
+      }
     }
-    }
-}, [idProductoBuscado, productos, cantidadBuscada]);
+  }, [idProductoBuscado, productos, cantidadBuscada]);
 
-const filtrarInventario = (e) => {
+  const filtrarInventario = (e) => {
     setIdProductoBuscado(e.target.value);
-};
+  };
 
-const agregarAlCarrito = (producto, cantidad) => {
+  const agregarAlCarrito = (producto, cantidad) => {
     setCarrito((prevCarrito) => {
-    const productoExistente = prevCarrito.find(
+      const productoExistente = prevCarrito.find(
         (item) => item.idProducto === producto.idProducto
-    );
-    if (productoExistente) {
+      );
+      if (productoExistente) {
         return prevCarrito.map((item) =>
-        item.idProducto === producto.idProducto
+          item.idProducto === producto.idProducto
             ? { ...item, cantidad: item.cantidad + cantidad }
             : item
         );
-    } else {
+      } else {
         return [...prevCarrito, { ...producto, cantidad }];
-    }
+      }
     });
-};
+  };
 
-const incrementarCantidad = (idProducto) => {
+  const incrementarCantidad = (idProducto) => {
     setCarrito((prevCarrito) =>
-    prevCarrito.map((item) =>
+      prevCarrito.map((item) =>
         item.idProducto === idProducto
-        ? { ...item, cantidad: item.cantidad + 1 }
-        : item
-    )
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      )
     );
-};
+  };
 
-const decrementarCantidad = (idProducto) => {
+  const decrementarCantidad = (idProducto) => {
     setCarrito((prevCarrito) =>
-    prevCarrito.map((producto) =>
+      prevCarrito.map((producto) =>
         producto.idProducto === idProducto
-        ? { ...producto, cantidad: Math.max(1, producto.cantidad - 1) }
-        : producto
-    )
+          ? { ...producto, cantidad: Math.max(1, producto.cantidad - 1) }
+          : producto
+      )
     );
-};
+  };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const fechaVenta = new Date();
     const idUsers = userId;
 
     try {
-    const totalVenta = -carrito.reduce(
+      const totalVenta = -carrito.reduce(
         (total, producto) =>
-        total + producto.precioProducto * producto.cantidad,
+          total + producto.precioProducto * producto.cantidad,
         0
-    );
+      );
 
-    const productosVenta = carrito.map((producto) => ({
+      const productosVenta = carrito.map((producto) => ({
         idProducto: producto.idProducto,
         cantidad: -Math.abs(producto.cantidad),
-    }));
+      }));
 
-    const ventaResponse = await axios.post("/sales/sales", {
+      const ventaResponse = await axios.post("/sales/sales", {
         fechaVenta,
         totalVenta,
         tipoPago,
         idUsers,
         productos: productosVenta,
-    });
+      });
 
-    if (!ventaResponse.data.success) {
+      if (!ventaResponse.data.success) {
         throw new Error("Error al registrar la venta");
-    }
+      }
 
-    for (const producto of carrito) {
+      for (const producto of carrito) {
         const devolucionResponse = await axios.post("/sales/processReturn", {
-        idProducto: producto.idProducto,
-        cantidad: Math.abs(producto.cantidad),
-        tipoPago,
-        idUsers,
+          idProducto: producto.idProducto,
+          cantidad: Math.abs(producto.cantidad),
+          tipoPago,
+          idUsers,
         });
 
         if (!devolucionResponse.data.success) {
-        throw new Error("Error al registrar la devolución");
+          throw new Error("Error al registrar la devolución");
         }
-    }
+      }
 
-    setCarrito([]);
-    alert("Devoluciones registradas con éxito");
+      setCarrito([]);
+      alert("Devoluciones registradas con éxito");
     } catch (error) {
-    setError("Error al realizar la operación");
-    console.error("Error al realizar la operación:", error);
+      setError("Error al realizar la operación");
+      console.error("Error al realizar la operación:", error);
     }
-};
+  };
 
-const formatoDinero = (amount) => {
+  const formatoDinero = (amount) => {
     return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-};
+  };
 
-if (loading) {
+  if (loading) {
     return (
-    <div>
+      <div>
         <NavbarAdmin />
         <h1>Cargando productos...</h1>
-    </div>
+      </div>
     );
-}
+  }
 
-return (
+  return (
     <div>
-    <NavbarAdmin />
-    <main className="main1">
+      <NavbarAdmin />
+      <main className="main1">
         <div className="carrito-label">
-        <p className="form-title">Devolución</p>
-        <hr />
-        <div className="encabezado">
+          <p className="form-title">Devolución</p>
+          <hr />
+          <div className="encabezado">
             <input
-            className="carrito-input"
-            type="text"
-            placeholder="Buscar producto por ID..."
-            value={idProductoBuscado}
-            onChange={filtrarInventario}
-            onBlur={() => {
+              className="carrito-input"
+              type="text"
+              placeholder="Buscar producto por ID..."
+              value={idProductoBuscado}
+              onChange={filtrarInventario}
+              onBlur={() => {
                 if (idProductoBuscado.length > 0) {
-                const productoEncontrado = productos.find(
+                  const productoEncontrado = productos.find(
                     (producto) =>
-                    String(producto.idProducto) === idProductoBuscado
-                );
-                if (productoEncontrado) {
+                      String(producto.idProducto) === idProductoBuscado
+                  );
+                  if (productoEncontrado) {
                     agregarAlCarrito(productoEncontrado, cantidadBuscada);
                     setIdProductoBuscado("");
-                } else {
+                  } else {
                     setError("Producto no encontrado.");
+                  }
                 }
-                }
-            }}
+              }}
             />
 
             <input
-            className="carrito-input"
-            type="number"
-            placeholder="Cantidad..."
-            value={cantidadBuscada}
-            min="1"
-            onChange={(e) => {
+              className="carrito-input"
+              type="number"
+              placeholder="Cantidad..."
+              value={cantidadBuscada}
+              min="1"
+              onChange={(e) => {
                 const valor = parseInt(e.target.value, 10);
                 setCantidadBuscada(valor < 1 ? 1 : valor);
-            }}
+              }}
             />
-        </div>
+          </div>
 
-        <table className="carrito-tabla">
+          <table className="carrito-tabla">
             <thead className="carrito-th">
-            <tr className="carrito-tr">
+              <tr className="carrito-tr">
                 <th className="carrito-th">Producto</th>
                 <th className="carrito-th">Precio</th>
                 <th className="carrito-th">Cantidad</th>
                 <th className="carrito-th">Total</th>
-            </tr>
+              </tr>
             </thead>
             <tbody className="carrito-items">
-            {carrito.map((producto) => (
+              {carrito.map((producto) => (
                 <tr className="carrito-tr" key={producto.idProducto}>
-                <td className="carrito-td">
+                  <td className="carrito-td">
                     <p className="txt-carrito">{producto.nombreProducto}</p>
-                </td>
-                <td className="carrito-td">
+                  </td>
+                  <td className="carrito-td">
                     <p className="txt-carrito">
-                    -${formatoDinero(producto.precioProducto)}
+                      -${formatoDinero(producto.precioProducto)}
                     </p>
-                </td>
-                <td className="carrito-td">
+                  </td>
+                  <td className="carrito-td">
                     <p className="txt-carrito">
-                    <button
+                      <button
                         className="boton-resta"
                         onClick={() => decrementarCantidad(producto.idProducto)}
-                    >
+                      >
                         <FontAwesomeIcon icon={faMinus} />
-                    </button>
-                    <span className="spanCarrito">{producto.cantidad}</span>
-                    <button
+                      </button>
+                      <span className="spanCarrito">{producto.cantidad}</span>
+                      <button
                         className="boton-suma"
                         onClick={() => incrementarCantidad(producto.idProducto)}
-                    >
+                      >
                         <FontAwesomeIcon icon={faPlus} />
-                    </button>
+                      </button>
                     </p>
-                </td>
-                <td className="carrito-td">
+                  </td>
+                  <td className="carrito-td">
                     <p className="txt-carrito">
-                    -$
-                    {formatoDinero(
+                      -$
+                      {formatoDinero(
                         producto.precioProducto * producto.cantidad
-                    )}
+                      )}
                     </p>
-                </td>
+                  </td>
                 </tr>
-            ))}
+              ))}
             </tbody>
-        </table>
+          </table>
 
-        <div className="venta-label">
+          <div className="venta-label">
             <div className="totalcarro">
-            <p className="textp">
+              <p className="textp">
                 Total a Devolver: -$
                 {formatoDinero(
-                carrito.reduce(
+                  carrito.reduce(
                     (acc, item) => acc + item.cantidad * item.precioProducto,
                     0
-                )
+                  )
                 )}
-            </p>
+              </p>
             </div>
-        </div>
+          </div>
 
-        <div className="form-group-carrito">
+          <div className="form-group-carrito">
             <form onSubmit={handleSubmit}>
-            <button className="boton-venta" type="submit">
+              <button className="boton-venta" type="submit">
                 <span>Devolución</span>
-            </button>
+              </button>
             </form>
+          </div>
         </div>
-        </div>
-    </main>
+      </main>
     </div>
-);
+  );
 };
 
 export default Ventas;
-
-
-
