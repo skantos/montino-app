@@ -25,8 +25,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import format from "date-fns/format";
 
-const formatFechaVenta = (fechaVenta) => {
-  const date = new Date(fechaVenta.toDate());
+const formatFechaVenta = (timestamp) => {
+  const date = new Date(timestamp.seconds * 1000);
   return format(date, "dd/MM/yyyy");
 };
 
@@ -38,6 +38,7 @@ const Historial = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTipoPago, setSelectedTipoPago] = useState("todos");
+  const [users, setUsers] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,22 +53,22 @@ const Historial = () => {
 
         const usersData = {};
         usersSnapshot.forEach((doc) => {
-          usersData[doc.id] = doc.data().nombreUsuario; // Obtener el nombre del usuario
+          usersData[doc.id] = doc.data().nombreUsuario;
         });
 
-        console.log("Users data:", usersData); // Log para verificar datos de usuarios
+        console.log("Users data:", usersData);
 
         const ventas = ventasSnapshot.docs.map((doc) => {
           const data = doc.data();
-          console.log("Venta data:", data); // Log para verificar datos de ventas
+          console.log("Venta data:", data);
           return {
             idVenta: doc.id,
             ...data,
-            nombreUsuario: usersData[data.userId] || "N/A", // Asignar el nombre del usuario
+            nombreUsuario: usersData[data.idUsuario] || "N/A",
           };
         });
 
-        console.log("Ventas data:", ventas); // Log para verificar ventas procesadas
+        console.log("Ventas data:", ventas);
 
         setHistorial(ventas);
         setLoading(false);
@@ -100,10 +101,6 @@ const Historial = () => {
     setOpenModal(false);
   };
 
-  const formatoDinero = (amount) => {
-    return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
-  };
-
   const exportToExcel = () => {
     const wb = XLSX.utils.book_new();
     historial.forEach((venta, index) => {
@@ -128,15 +125,15 @@ const Historial = () => {
         "",
         "",
       ]);
-      venta.Products.forEach((producto) => {
+      venta.productos.forEach((producto) => {
         wsData.push([
           "",
           "",
           "", // Empty cells for main sale details row
           producto.idProducto,
-          producto.nombre,
+          producto.nombreProducto,
           producto.cantidad,
-          producto.precio,
+          producto.precioProducto,
           "", // Empty cell for main sale details row
         ]);
       });
@@ -156,13 +153,17 @@ const Historial = () => {
 
   const filtrarPorFecha = (ventas, fecha) => {
     return ventas.filter((venta) => {
-      const ventaFecha = new Date(venta.fechaVenta.toDate());
+      const ventaFecha = new Date(venta.fechaVenta.seconds * 1000);
       return (
         ventaFecha.getFullYear() === fecha.getFullYear() &&
         ventaFecha.getMonth() === fecha.getMonth() &&
         ventaFecha.getDate() === fecha.getDate()
       );
     });
+  };
+
+  const formatoDinero = (amount) => {
+    return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
 
   const filtrarPorTipoPago = (ventas, tipoPago) => {
@@ -179,12 +180,6 @@ const Historial = () => {
     (total, venta) => total + venta.totalVenta,
     0
   );
-
-  <VentaDetalleModal
-    open={openModal}
-    onClose={handleCloseModal}
-    products={selectedProducts || []} // Pasar un arreglo vacío si products es undefined
-  />;
 
   return (
     <>
@@ -260,7 +255,7 @@ const Historial = () => {
                           </TableCell>
                           <TableCell>
                             <Button
-                              onClick={() => handleOpenModal(venta.Products)}
+                              onClick={() => handleOpenModal(venta.productos)}
                             >
                               Ver detalles
                             </Button>
@@ -285,37 +280,55 @@ const Historial = () => {
   );
 };
 
-const VentaDetalleModal = ({ open, onClose, products = [] }) => (
-  <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-    <DialogTitle>Detalles de la Venta</DialogTitle>
-    <DialogContent>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID Producto</TableCell>
-              <TableCell>Nombre Producto</TableCell>
-              <TableCell>Cantidad</TableCell>
-              <TableCell>Precio</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((product, index) => (
-              <TableRow key={index}>
-                <TableCell>{product.idProducto}</TableCell>
-                <TableCell>{product.nombre}</TableCell>
-                <TableCell>{product.cantidad}</TableCell>
-                <TableCell>${formatoDinero(product.precio)}</TableCell>
+const VentaDetalleModal = ({ open, onClose, products = [] }) => {
+  console.log("Productos en el modal:", products);
+
+  const formatoDinero = (amount) => {
+    return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Detalles de la Venta</DialogTitle>
+      <DialogContent>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID Producto</TableCell>
+                <TableCell>Nombre Producto</TableCell>
+                <TableCell>Cantidad</TableCell>
+                <TableCell>Precio</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose}>Cerrar</Button>
-    </DialogActions>
-  </Dialog>
-);
+            </TableHead>
+            <TableBody>
+              {products.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    No hay productos para mostrar
+                  </TableCell>
+                </TableRow>
+              ) : (
+                products.map((producto) => (
+                  <TableRow key={producto.idProducto}>
+                    <TableCell>{producto.idProducto}</TableCell>
+                    <TableCell>{producto.nombreProducto}</TableCell>
+                    <TableCell>{producto.cantidad}</TableCell>
+                    <TableCell>
+                      ${formatoDinero(producto.precioProducto)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cerrar</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 export default Historial;
