@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "../NavbarAdmin";
 import { Dialog } from "@mui/material";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import "../../../styles/inventario.css";
 import "../../../styles/ventas.css";
-
-// Configura Firestore
-const db = getFirestore();
+import { db } from "../../../firebase";
 
 const Inventario = () => {
   const [productos, setProductos] = useState([]);
@@ -33,21 +25,16 @@ const Inventario = () => {
   useEffect(() => {
     const getProductos = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "products"));
+        const querySnapshot = await getDocs(collection(db, "productos"));
         const productsArray = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
+          idProducto: doc.id,
           ...doc.data(),
         }));
 
-        if (Array.isArray(productsArray)) {
-          setProductos(productsArray);
-          setInventarioFiltrado(productsArray);
-        } else {
-          setError("Datos de productos no son un array.");
-        }
+        setProductos(productsArray);
+        setInventarioFiltrado(productsArray);
       } catch (error) {
-        setError("Error al obtener los productos");
-        console.error("Error al obtener los productos:", error);
+        setError("Error al cargar los productos. Intente más tarde.");
       } finally {
         setLoading(false);
       }
@@ -108,7 +95,7 @@ const Inventario = () => {
       marcaProducto: producto.marcaProducto,
       cantidadProducto: producto.cantidadProducto,
     });
-    setOpenModal(true); // Abrir el modal cuando se selecciona un producto para editar
+    setOpenModal(true);
   };
 
   const handleInputChange = (e) => {
@@ -121,7 +108,7 @@ const Inventario = () => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setProductoEditado(null); // Restablecer el producto editado cuando se cierra el modal
+    setProductoEditado(null);
   };
 
   const handleFormSubmit = async (e) => {
@@ -161,18 +148,16 @@ const Inventario = () => {
         })
       );
 
-      handleCloseModal(); // Cerrar el modal y restablecer el estado cuando se actualiza el producto
+      handleCloseModal();
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
     }
   };
 
-  // Calcular el total de productos
   const totalProductos = inventarioFiltrado.reduce((total, producto) => {
     return total + producto.cantidadProducto;
   }, 0);
 
-  // Calcular el total del inventario
   const totalInventario = inventarioFiltrado.reduce((total, producto) => {
     return total + producto.precioProducto * producto.cantidadProducto;
   }, 0);
