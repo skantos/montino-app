@@ -3,6 +3,9 @@ import { AuthContext } from "../../../context/AuthContext.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { db, auth } from "../../../firebase.jsx";
+
+import NavbarVendedor from "../../Vendedor/NavigationVendedor.jsx"
+
 import {
 collection,
 getDocs,
@@ -214,6 +217,7 @@ if (loading) {
 return (
     <div>
     <div className="nav">
+        <NavbarVendedor/>
     </div>
     <main className="main1">
         <div className="carrito-label">

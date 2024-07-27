@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -47,8 +47,19 @@ export function AuthContextProvider({ children }) {
     }
   };
 
+  const signOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+      setUser(null);
+      setRole(null);
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, role, signIn }}>
+    <AuthContext.Provider value={{ user, role, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

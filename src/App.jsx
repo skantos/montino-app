@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { UserAuth } from "./context/AuthContext";
+
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import RegistrarUsuario from "./components/Administrador/Agregarusuario/RegistrarUsuario";
@@ -9,6 +10,7 @@ import Ventas from "./components/Administrador/Ventas/Ventas";
 import Inventario from "./components/Administrador/Inventario/Inventario";
 import Devolucion from "./components/Administrador/Devolucion/Devolucion";
 import Historial from "./components/Administrador/Historial/Historial";
+
 import VentaVendedor from "./components/Vendedor/VentaVendedor/VentaVendedor";
 
 function ProtectedRoute({ children, allowedRoles }) {
@@ -34,7 +36,9 @@ function App() {
       <Route path="/inventario" element={<ProtectedRoute allowedRoles={['admin']}><Inventario /></ProtectedRoute>} />
       <Route path="/devolucion" element={<ProtectedRoute allowedRoles={['admin', 'vendedor']}><Devolucion /></ProtectedRoute>} />
       <Route path="/historial" element={<ProtectedRoute allowedRoles={['admin']}><Historial /></ProtectedRoute>} />
+
       <Route path="/vendedor/ventas" element={<ProtectedRoute allowedRoles={['vendedor']}><VentaVendedor /></ProtectedRoute>} />
+
       <Route path="/unauthorized" element={<div>Unauthorized - You do not have permission to view this page.</div>} />
     </Routes>
   );
