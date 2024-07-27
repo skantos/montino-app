@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import NavbarAdmin from "../NavbarAdmin";
 import "../../../styles/historial.css";
-
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase"; // Asegúrate de ajustar la ruta según tu configuración
-
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../../firebase";
 import {
   Dialog,
   DialogTitle,
@@ -22,15 +19,14 @@ import {
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-// import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import format from "date-fns/format";
 
 const formatFechaVenta = (fechaVenta) => {
-  return new Date(fechaVenta).toLocaleDateString("es-CL");
+  const date = new Date(fechaVenta.toDate());
+  return format(date, "dd/MM/yyyy");
 };
 
 const Historial = () => {
@@ -44,10 +40,32 @@ const Historial = () => {
 
   useEffect(() => {
     const getHistorial = async () => {
+      setLoading(true);
+      setError("");
       try {
-        const salesCollection = collection(db, "salesProducts");
-        const salesSnapshot = await getDocs(salesCollection);
+        const salesCollection = collection(db, "sales");
+
+        // Ensure selectedDate is a Date object and reset time components
+        const startDate = new Date(selectedDate);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 1); // To include the full day
+
+        const salesQuery = query(
+          salesCollection,
+          where("createdAt", ">=", startDate),
+          where("createdAt", "<", endDate)
+        );
+
+        const salesSnapshot = await getDocs(salesQuery);
+        if (salesSnapshot.empty) {
+          setError("No hay ventas para la fecha seleccionada.");
+          setHistorial([]);
+          return;
+        }
+
         const salesData = salesSnapshot.docs.map((doc) => doc.data());
+        console.log("salesData", salesData);
 
         const groupedSales = salesData.reduce((acc, sale) => {
           const saleId = sale.idVenta;
@@ -78,8 +96,7 @@ const Historial = () => {
           return acc;
         }, {});
 
-        const formattedData = Object.values(groupedSales);
-        setHistorial(formattedData);
+        setHistorial(Object.values(groupedSales));
       } catch (error) {
         setError("Error al obtener las ventas.");
         console.error("Error al obtener las ventas:", error);
@@ -89,7 +106,7 @@ const Historial = () => {
     };
 
     getHistorial();
-  }, []);
+  }, [selectedDate]);
 
   const translateTipoPago = (tipoPago) => {
     switch (tipoPago) {
@@ -166,7 +183,7 @@ const Historial = () => {
 
   const filtrarPorFecha = (ventas, fecha) => {
     return ventas.filter((venta) => {
-      const ventaFecha = new Date(venta.fechaVenta);
+      const ventaFecha = new Date(venta.fechaVenta.toDate());
       return (
         ventaFecha.getFullYear() === fecha.getFullYear() &&
         ventaFecha.getMonth() === fecha.getMonth() &&
@@ -200,7 +217,7 @@ const Historial = () => {
         <main className="table">
           <section className="table-header">
             <p className="form-title">
-              Total del dia: ${formatoDinero(totalFinal)}
+              Total del día: ${formatoDinero(totalFinal)}
             </p>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
@@ -240,81 +257,76 @@ const Historial = () => {
           ) : (
             <>
               <section className="table-body">
-                <table className="tabla-inventario">
-                  <thead>
-                    <tr>
-                      <th>Id Venta</th>
-                      <th>Fecha</th>
-                      <th>Nombre Usuario</th>
-                      <th>Tipo de Pago</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ventasFiltradas.map((venta) => (
-                      <tr
-                        key={venta.idVenta}
-                        onClick={() => handleOpenModal(venta.Products)}
-                      >
-                        <td>{venta.idVenta}</td>
-                        <td>{formatFechaVenta(venta.fechaVenta)}</td>
-                        <td>{venta.User?.nombre || "N/A"}</td>
-                        <td>{translateTipoPago(venta.tipoPago || "N/A")}</td>
-                        <td>${formatoDinero(venta.totalVenta)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </section>
-
-              <Dialog
-                open={openModal}
-                onClose={handleCloseModal}
-                maxWidth="sm"
-                fullWidth
-              >
-                <DialogTitle>Productos de la Venta</DialogTitle>
-                <DialogContent>
-                  <TableContainer component={Paper}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Id Producto</TableCell>
-                          <TableCell>Nombre Producto</TableCell>
-                          <TableCell>Cantidad</TableCell>
-                          <TableCell>Precio</TableCell>
-                          <TableCell>Total</TableCell>
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>ID Venta</TableCell>
+                        <TableCell>Fecha</TableCell>
+                        <TableCell>Nombre Usuario</TableCell>
+                        <TableCell>Tipo de Pago</TableCell>
+                        <TableCell>Detalles</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {ventasFiltradas.map((venta) => (
+                        <TableRow key={venta.idVenta}>
+                          <TableCell>{venta.idVenta}</TableCell>
+                          <TableCell>
+                            {formatFechaVenta(venta.fechaVenta)}
+                          </TableCell>
+                          <TableCell>{venta.User?.nombre || "N/A"}</TableCell>
+                          <TableCell>
+                            {translateTipoPago(venta.tipoPago)}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              onClick={() => handleOpenModal(venta.Products)}
+                            >
+                              Ver detalles
+                            </Button>
+                          </TableCell>
                         </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {selectedProducts.map((product) => (
-                          <TableRow key={product.idProducto}>
-                            <TableCell>{product.idProducto}</TableCell>
-                            <TableCell>{product.nombre}</TableCell>
-                            <TableCell>{product.cantidad}</TableCell>
-                            <TableCell>
-                              ${formatoDinero(product.precio)}
-                            </TableCell>
-                            <TableCell>
-                              $
-                              {formatoDinero(product.cantidad * product.precio)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleCloseModal} color="primary">
-                    Cerrar
-                  </Button>
-                </DialogActions>
-              </Dialog>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </section>
             </>
           )}
         </main>
       </div>
+
+      <Dialog open={openModal} onClose={handleCloseModal}>
+        <DialogTitle>Detalles de Venta</DialogTitle>
+        <DialogContent>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID Producto</TableCell>
+                  <TableCell>Nombre Producto</TableCell>
+                  <TableCell>Cantidad</TableCell>
+                  <TableCell>Precio</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedProducts.map((producto) => (
+                  <TableRow key={producto.idProducto}>
+                    <TableCell>{producto.idProducto}</TableCell>
+                    <TableCell>{producto.nombre}</TableCell>
+                    <TableCell>{producto.cantidad}</TableCell>
+                    <TableCell>${formatoDinero(producto.precio)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
