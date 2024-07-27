@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "../NavbarAdmin";
 import "../../../styles/historial.css";
-
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase"; // Asegúrate de ajustar la ruta según tu configuración
-
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../../firebase";
 import {
   Dialog,
   DialogTitle,
@@ -22,15 +20,13 @@ import {
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-// import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import format from "date-fns/format";
 
 const formatFechaVenta = (fechaVenta) => {
-  return new Date(fechaVenta).toLocaleDateString("es-CL");
+  return format(new Date(fechaVenta.seconds * 1000), "dd/MM/yyyy");
 };
 
 const Historial = () => {
@@ -46,7 +42,11 @@ const Historial = () => {
     const getHistorial = async () => {
       try {
         const salesCollection = collection(db, "salesProducts");
-        const salesSnapshot = await getDocs(salesCollection);
+        const salesQuery = query(
+          salesCollection,
+          where("createdAt", ">=", new Date(selectedDate.setHours(0, 0, 0, 0)))
+        );
+        const salesSnapshot = await getDocs(salesQuery);
         const salesData = salesSnapshot.docs.map((doc) => doc.data());
 
         const groupedSales = salesData.reduce((acc, sale) => {
@@ -89,7 +89,7 @@ const Historial = () => {
     };
 
     getHistorial();
-  }, []);
+  }, [selectedDate]);
 
   const translateTipoPago = (tipoPago) => {
     switch (tipoPago) {
@@ -166,7 +166,7 @@ const Historial = () => {
 
   const filtrarPorFecha = (ventas, fecha) => {
     return ventas.filter((venta) => {
-      const ventaFecha = new Date(venta.fechaVenta);
+      const ventaFecha = new Date(venta.fechaVenta.seconds * 1000);
       return (
         ventaFecha.getFullYear() === fecha.getFullYear() &&
         ventaFecha.getMonth() === fecha.getMonth() &&
@@ -200,7 +200,7 @@ const Historial = () => {
         <main className="table">
           <section className="table-header">
             <p className="form-title">
-              Total del dia: ${formatoDinero(totalFinal)}
+              Total del día: ${formatoDinero(totalFinal)}
             </p>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
@@ -270,7 +270,7 @@ const Historial = () => {
               <Dialog
                 open={openModal}
                 onClose={handleCloseModal}
-                maxWidth="sm"
+                maxWidth="md"
                 fullWidth
               >
                 <DialogTitle>Productos de la Venta</DialogTitle>
@@ -280,10 +280,9 @@ const Historial = () => {
                       <TableHead>
                         <TableRow>
                           <TableCell>Id Producto</TableCell>
-                          <TableCell>Nombre Producto</TableCell>
+                          <TableCell>Nombre</TableCell>
                           <TableCell>Cantidad</TableCell>
                           <TableCell>Precio</TableCell>
-                          <TableCell>Total</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -294,10 +293,6 @@ const Historial = () => {
                             <TableCell>{product.cantidad}</TableCell>
                             <TableCell>
                               ${formatoDinero(product.precio)}
-                            </TableCell>
-                            <TableCell>
-                              $
-                              {formatoDinero(product.cantidad * product.precio)}
                             </TableCell>
                           </TableRow>
                         ))}
