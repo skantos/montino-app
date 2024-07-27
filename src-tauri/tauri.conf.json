@@ -2,8 +2,9 @@
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
-    "devPath": "montino",
-    "distDir": "montino"
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
   },
   "package": {
     "productName": "montino-app",
@@ -28,7 +29,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.montinoapp.myapp",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -55,10 +56,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 650,
         "resizable": true,
         "title": "montino-app",
-        "width": 800
+        "width": 650
       }
     ]
   }

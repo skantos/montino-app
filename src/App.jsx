@@ -3,7 +3,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { UserAuth } from "./context/AuthContext";
 
 import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
+
 import RegistrarUsuario from "./components/Administrador/Agregarusuario/RegistrarUsuario";
 import AgregarProducto from "./components/Administrador/AgregarProducto/AgregarProducto";
 import Ventas from "./components/Administrador/Ventas/Ventas";
@@ -29,7 +29,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><Dashboard /></ProtectedRoute>} />
+
       <Route path="/agregarUsuario" element={<ProtectedRoute allowedRoles={['admin']}><RegistrarUsuario /></ProtectedRoute>} />
       <Route path="/agregarProducto" element={<ProtectedRoute allowedRoles={['admin']}><AgregarProducto /></ProtectedRoute>} />
       <Route path="/ventas" element={<ProtectedRoute allowedRoles={['admin', 'vendedor']}><Ventas /></ProtectedRoute>} />
