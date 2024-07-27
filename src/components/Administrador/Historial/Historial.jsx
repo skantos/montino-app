@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../../styles/historial.css";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import NavbarAdmin from "../NavbarAdmin";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase";
 import {
   Dialog,
@@ -39,74 +40,45 @@ const Historial = () => {
   const [selectedTipoPago, setSelectedTipoPago] = useState("todos");
 
   useEffect(() => {
-    const getHistorial = async () => {
-      setLoading(true);
-      setError("");
+    const fetchData = async () => {
       try {
-        const salesCollection = collection(db, "sales");
+        const ventasCollection = collection(db, "sales");
+        const usersCollection = collection(db, "users");
 
-        // Ensure selectedDate is a Date object and reset time components
-        const startDate = new Date(selectedDate);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 1); // To include the full day
+        const [ventasSnapshot, usersSnapshot] = await Promise.all([
+          getDocs(ventasCollection),
+          getDocs(usersCollection),
+        ]);
 
-        const salesQuery = query(
-          salesCollection,
-          where("createdAt", ">=", startDate),
-          where("createdAt", "<", endDate)
-        );
+        const usersData = {};
+        usersSnapshot.forEach((doc) => {
+          usersData[doc.id] = doc.data().nombreUsuario; // Obtener el nombre del usuario
+        });
 
-        const salesSnapshot = await getDocs(salesQuery);
-        if (salesSnapshot.empty) {
-          setError("No hay ventas para la fecha seleccionada.");
-          setHistorial([]);
-          return;
-        }
+        console.log("Users data:", usersData); // Log para verificar datos de usuarios
 
-        const salesData = salesSnapshot.docs.map((doc) => doc.data());
-        console.log("salesData", salesData);
+        const ventas = ventasSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          console.log("Venta data:", data); // Log para verificar datos de ventas
+          return {
+            idVenta: doc.id,
+            ...data,
+            nombreUsuario: usersData[data.userId] || "N/A", // Asignar el nombre del usuario
+          };
+        });
 
-        const groupedSales = salesData.reduce((acc, sale) => {
-          const saleId = sale.idVenta;
-          if (!acc[saleId]) {
-            acc[saleId] = {
-              idVenta: saleId,
-              fechaVenta: sale.createdAt,
-              idUsers: sale.Sale.User?.idUsuario || "N/A",
-              tipoPago: sale.Sale.tipoPago || "N/A",
-              User: { nombre: sale.Sale.User?.nombreUsuario || "N/A" },
-              Products: [],
-              totalVenta: 0,
-            };
-          }
+        console.log("Ventas data:", ventas); // Log para verificar ventas procesadas
 
-          if (sale.Product) {
-            acc[saleId].Products.push({
-              idProducto: sale.Product.idProducto,
-              nombre: sale.Product.nombreProducto,
-              cantidad: sale.cantidad,
-              precio: sale.Product.precioProducto || 0,
-            });
-
-            acc[saleId].totalVenta +=
-              sale.cantidad * (sale.Product.precioProducto || 0);
-          }
-
-          return acc;
-        }, {});
-
-        setHistorial(Object.values(groupedSales));
+        setHistorial(ventas);
+        setLoading(false);
       } catch (error) {
-        setError("Error al obtener las ventas.");
-        console.error("Error al obtener las ventas:", error);
-      } finally {
+        console.error("Error fetching data:", error); // Log de error
+        setError("Ocurrió un error al cargar el historial de ventas");
         setLoading(false);
       }
     };
-
-    getHistorial();
-  }, [selectedDate]);
+    fetchData();
+  }, []);
 
   const translateTipoPago = (tipoPago) => {
     switch (tipoPago) {
@@ -149,11 +121,12 @@ const Historial = () => {
       wsData.push([
         venta.idVenta,
         formatFechaVenta(venta.fechaVenta),
-        venta.User?.nombre || "N/A",
-        "",
-        "",
-        "",
+        venta.nombreUsuario,
         "", // Placeholder for the main sale details row
+        "",
+        "",
+        "",
+        "",
       ]);
       venta.Products.forEach((producto) => {
         wsData.push([
@@ -206,6 +179,12 @@ const Historial = () => {
     (total, venta) => total + venta.totalVenta,
     0
   );
+
+  <VentaDetalleModal
+    open={openModal}
+    onClose={handleCloseModal}
+    products={selectedProducts || []} // Pasar un arreglo vacío si products es undefined
+  />;
 
   return (
     <>
@@ -275,7 +254,7 @@ const Historial = () => {
                           <TableCell>
                             {formatFechaVenta(venta.fechaVenta)}
                           </TableCell>
-                          <TableCell>{venta.User?.nombre || "N/A"}</TableCell>
+                          <TableCell>{venta.nombreUsuario}</TableCell>
                           <TableCell>
                             {translateTipoPago(venta.tipoPago)}
                           </TableCell>
@@ -297,38 +276,46 @@ const Historial = () => {
         </main>
       </div>
 
-      <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>Detalles de Venta</DialogTitle>
-        <DialogContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID Producto</TableCell>
-                  <TableCell>Nombre Producto</TableCell>
-                  <TableCell>Cantidad</TableCell>
-                  <TableCell>Precio</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedProducts.map((producto) => (
-                  <TableRow key={producto.idProducto}>
-                    <TableCell>{producto.idProducto}</TableCell>
-                    <TableCell>{producto.nombre}</TableCell>
-                    <TableCell>{producto.cantidad}</TableCell>
-                    <TableCell>${formatoDinero(producto.precio)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
+      <VentaDetalleModal
+        open={openModal}
+        onClose={handleCloseModal}
+        products={selectedProducts}
+      />
     </>
   );
 };
+
+const VentaDetalleModal = ({ open, onClose, products = [] }) => (
+  <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <DialogTitle>Detalles de la Venta</DialogTitle>
+    <DialogContent>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID Producto</TableCell>
+              <TableCell>Nombre Producto</TableCell>
+              <TableCell>Cantidad</TableCell>
+              <TableCell>Precio</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {products.map((product, index) => (
+              <TableRow key={index}>
+                <TableCell>{product.idProducto}</TableCell>
+                <TableCell>{product.nombre}</TableCell>
+                <TableCell>{product.cantidad}</TableCell>
+                <TableCell>${formatoDinero(product.precio)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose}>Cerrar</Button>
+    </DialogActions>
+  </Dialog>
+);
 
 export default Historial;
