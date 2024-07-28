@@ -167,7 +167,7 @@ const Dashboard = () => {
       <div className="container">
         <h1>Dashboard</h1>
         <div className="metrics">
-          <h2>Total Ventas: ${formatoDinero(totalSales.toFixed(2))}</h2>
+          <h2>Total Ventas: ${formatoDinero(totalSales.toFixed(0))}</h2>
         </div>
         <div className="charts">
           <div className="chart">
