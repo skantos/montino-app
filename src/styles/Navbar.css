@@ -13,7 +13,6 @@
     display: flex;
     align-items: center;
     justify-content: center; /* Centrar horizontalmente */
-
 }
 
 .navbar ul {
@@ -40,6 +39,10 @@
 
 .navbar .link:hover {
     background-color: #f0f0f0;
+}
+
+.navbar .link.active {
+    border-bottom: 3px solid black; /* Marcar borde inferior */
 }
 
 .navbar .menu {
@@ -80,7 +83,7 @@
     width: 100%;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
     .Mobile {
     display: none;
     }
@@ -89,7 +92,7 @@
     }
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1000px) {
     .navbar .sidebar {
     display: none;
     }

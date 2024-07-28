@@ -1,6 +1,6 @@
 import "../../styles/Navbar.css";
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
@@ -12,6 +12,7 @@ import { getAuth, signOut } from "firebase/auth";
 
 const NavbarAdmin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarVisible, setSidebarVisible] = React.useState(false);
 
   const handleLogout = async () => {
@@ -46,6 +47,10 @@ const NavbarAdmin = () => {
     };
   }, []);
 
+  const isActive = (path) => {
+    return location.pathname === path ? "active" : "";
+  };
+
   return (
     <nav className="navbar">
       <ul className={`sidebar ${sidebarVisible ? "visible" : ""}`}>
@@ -55,37 +60,37 @@ const NavbarAdmin = () => {
           </Link>
         </li>
         <li>
-          <Link className="link" to="/ventas">
+          <Link className={`link ${isActive("/ventas")}`} to="/ventas">
             Venta
           </Link>
         </li>
         <li>
-          <Link className="link" to="/agregarProducto">
+          <Link className={`link ${isActive("/agregarProducto")}`} to="/agregarProducto">
             Agregar Producto
           </Link>
         </li>
         <li>
-          <Link className="link" to="/agregarUsuario">
+          <Link className={`link ${isActive("/agregarUsuario")}`} to="/agregarUsuario">
             Agregar Usuario
           </Link>
         </li>
         <li>
-          <Link className="link" to="/inventario">
+          <Link className={`link ${isActive("/inventario")}`} to="/inventario">
             Inventario
           </Link>
         </li>
         <li>
-          <Link className="link" to="/devolucion">
+          <Link className={`link ${isActive("/devolucion")}`} to="/devolucion">
             Devolución
           </Link>
         </li>
         <li>
-          <Link className="link" to="/dashboard">
+          <Link className={`link ${isActive("/dashboard")}`} to="/dashboard">
             Dashboard
           </Link>
         </li>
         <li>
-          <Link className="link" to="/historial">
+          <Link className={`link ${isActive("/historial")}`} to="/historial">
             Historial
           </Link>
         </li>
@@ -98,37 +103,37 @@ const NavbarAdmin = () => {
 
       <ul>
         <li className="Mobile">
-          <Link className="link" to="/ventas">
-            Venta
-          </Link>
-        </li>
-        <li className="Mobile">
-          <Link className="link" to="/agregarProducto">
-            Agregar Producto
-          </Link>
-        </li>
-        <li className="Mobile">
-          <Link className="link" to="/agregarUsuario">
-            Agregar Usuario
-          </Link>
-        </li>
-        <li className="Mobile">
-          <Link className="link" to="/inventario">
-            Inventario
-          </Link>
-        </li>
-        <li className="Mobile">
-          <Link className="link" to="/devolucion">
-            Devolución
-          </Link>
-        </li>
-        <li>
-          <Link className="link" to="/dashboard">
+          <Link className={`link ${isActive("/dashboard")}`} to="/dashboard">
             Dashboard
           </Link>
         </li>
         <li className="Mobile">
-          <Link className="link" to="/historial">
+          <Link className={`link ${isActive("/agregarProducto")}`} to="/agregarProducto">
+            Agregar Producto
+          </Link>
+        </li>
+        <li className="Mobile">
+          <Link className={`link ${isActive("/agregarUsuario")}`} to="/agregarUsuario">
+            Agregar Usuario
+          </Link>
+        </li>
+        <li className="Mobile">
+          <Link className={`link ${isActive("/devolucion")}`} to="/devolucion">
+            Devolución
+          </Link>
+        </li>
+        <li className="Mobile">
+          <Link className={`link ${isActive("/ventas")}`} to="/ventas">
+            Venta
+          </Link>
+        </li>
+        <li className="Mobile">
+          <Link className={`link ${isActive("/inventario")}`} to="/inventario">
+            Inventario
+          </Link>
+        </li>
+        <li className="Mobile">
+          <Link className={`link ${isActive("/historial")}`} to="/historial">
             Historial
           </Link>
         </li>

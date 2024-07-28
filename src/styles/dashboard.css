@@ -1,53 +1,85 @@
-body {
-  font-family: "Arial", sans-serif;
-  background-color: #f8f9fa;
-  margin: 0;
-  padding: 0;
-}
-
+/* Dashboard Styles */
 .container {
-  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
-  background-color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-h1,
-h2,
-h3 {
-  color: #343a40;
+  overflow: hidden;
 }
 
 .metrics {
   margin-bottom: 20px;
 }
 
-.charts {
+.charts-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-around;
+  justify-content: center;
+  align-items: center; /* Centro vertical */
+  width: 100%;
+  height: calc(100vh - 290px); /* Ajusta la altura total de los gráficos */
+}
+
+.pie-chart {
+  width: 30%; /* Ajusta el ancho del gráfico de pie */
+  margin-right: 20px;
+}
+
+.bar-charts {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centro horizontal */
+  width: 70%; /* Ajusta el ancho de los gráficos de barras */
+  height: 100%;
 }
 
 .chart {
-  width: 45%;
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 10px 0;
+  width: calc(100vh - 300px); /* Ajusta la altura total de los gráficos */
+  height: calc(50% - 25px); /* Ajusta la altura de cada gráfico de barra */
 }
 
 .chart h3 {
+  margin:  0px 5px 0px;
   text-align: center;
 }
 
-.chart canvas {
-  max-width: 100%;
+@media (max-width: 900px) {
+  .charts-container {
+    flex-direction: column; /* Cambia la dirección del diseño a columna en pantallas más pequeñas */
+  }
+
+  .pie-chart {
+    width: 80%;
+    margin-right: 0;
+  }
+
+  .bar-charts {
+    width: 100%;
+    max-width: 100%; /* Permite que los gráficos de barras ocupen el 100% en pantallas pequeñas */
+  }
+
+  .chart {
+    width: 80%; /* Reduce el ancho de cada gráfico de barra en pantallas más pequeñas */
+    height: calc(50% - 20px); /* Ajusta la altura de cada gráfico de barra */
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .charts-container {
+    height: auto; /* Permite que la altura se ajuste automáticamente en pantallas muy pequeñas */
+  }
+
+  .pie-chart {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .bar-charts {
+    width: 100%;
+  }
+
   .chart {
     width: 100%;
+    height: 300px; /* Ajusta la altura de cada gráfico de barra en pantallas muy pequeñas */
   }
 }

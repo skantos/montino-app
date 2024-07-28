@@ -165,22 +165,23 @@ const Dashboard = () => {
         <NavbarAdmin />
       </div>
       <div className="container">
-        <h1>Dashboard</h1>
         <div className="metrics">
           <h2>Total Ventas: ${formatoDinero(totalSales.toFixed(0))}</h2>
         </div>
-        <div className="charts">
-          <div className="chart">
+        <div className="charts-container">
+          <div className="pie-chart">
             <h3>Ventas por Tipo de Pago</h3>
             <Pie data={salesByTypeData} />
           </div>
-          <div className="chart">
-            <h3>Ventas por Usuario</h3>
-            <Bar data={salesByUserData} />
-          </div>
-          <div className="chart">
-            <h3>Ventas por Producto</h3>
-            <Bar data={salesByProductData} />
+          <div className="bar-charts">
+            <div className="chart">
+              <h3>Ventas por Usuario</h3>
+              <Bar data={salesByUserData} />
+            </div>
+            <div className="chart">
+              <h3>Ventas por Producto</h3>
+              <Bar data={salesByProductData} />
+            </div>
           </div>
         </div>
       </div>
