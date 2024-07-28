@@ -10,6 +10,7 @@ import Ventas from "./components/Administrador/Ventas/Ventas";
 import Inventario from "./components/Administrador/Inventario/Inventario";
 import Devolucion from "./components/Administrador/Devolucion/Devolucion";
 import Historial from "./components/Administrador/Historial/Historial";
+import Dashboard from "./components/Administrador/Dashboard/Dashboard";
 
 import VentaVendedor from "./components/Vendedor/VentaVendedor/VentaVendedor";
 
@@ -29,17 +30,80 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
+      <Route
+        path="/agregarUsuario"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <RegistrarUsuario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/agregarProducto"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AgregarProducto />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ventas"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "vendedor"]}>
+            <Ventas />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/inventario"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Inventario />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/devolucion"
+        element={
+          <ProtectedRoute allowedRoles={["admin", "vendedor"]}>
+            <Devolucion />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/historial"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Historial />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/agregarUsuario" element={<ProtectedRoute allowedRoles={['admin']}><RegistrarUsuario /></ProtectedRoute>} />
-      <Route path="/agregarProducto" element={<ProtectedRoute allowedRoles={['admin']}><AgregarProducto /></ProtectedRoute>} />
-      <Route path="/ventas" element={<ProtectedRoute allowedRoles={['admin', 'vendedor']}><Ventas /></ProtectedRoute>} />
-      <Route path="/inventario" element={<ProtectedRoute allowedRoles={['admin']}><Inventario /></ProtectedRoute>} />
-      <Route path="/devolucion" element={<ProtectedRoute allowedRoles={['admin', 'vendedor']}><Devolucion /></ProtectedRoute>} />
-      <Route path="/historial" element={<ProtectedRoute allowedRoles={['admin']}><Historial /></ProtectedRoute>} />
+      <Route
+        path="/vendedor/ventas"
+        element={
+          <ProtectedRoute allowedRoles={["vendedor"]}>
+            <VentaVendedor />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/vendedor/ventas" element={<ProtectedRoute allowedRoles={['vendedor']}><VentaVendedor /></ProtectedRoute>} />
-
-      <Route path="/unauthorized" element={<div>Unauthorized - You do not have permission to view this page.</div>} />
+      <Route
+        path="/unauthorized"
+        element={
+          <div>
+            Unauthorized - You do not have permission to view this page.
+          </div>
+        }
+      />
     </Routes>
   );
 }

@@ -80,6 +80,11 @@ const NavbarAdmin = () => {
           </Link>
         </li>
         <li>
+          <Link className="link" to="/dashboard">
+            Dashboard
+          </Link>
+        </li>
+        <li>
           <Link className="link" to="/historial">
             Historial
           </Link>
@@ -115,6 +120,11 @@ const NavbarAdmin = () => {
         <li className="Mobile">
           <Link className="link" to="/devolucion">
             Devolución
+          </Link>
+        </li>
+        <li>
+          <Link className="link" to="/dashboard">
+            Dashboard
           </Link>
         </li>
         <li className="Mobile">
