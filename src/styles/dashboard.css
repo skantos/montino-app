@@ -1,0 +1,53 @@
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  margin: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+h1,
+h2,
+h3 {
+  color: #343a40;
+}
+
+.metrics {
+  margin-bottom: 20px;
+}
+
+.charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.chart {
+  width: 45%;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.chart h3 {
+  text-align: center;
+}
+
+.chart canvas {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chart {
+    width: 100%;
+  }
+}
