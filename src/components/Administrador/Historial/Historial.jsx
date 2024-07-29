@@ -167,6 +167,9 @@ const Historial = () => {
   };
 
   const formatoDinero = (amount) => {
+    if (isNaN(amount)) {
+      return "0"; // O puedes devolver un valor por defecto adecuado
+    }
     return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
 

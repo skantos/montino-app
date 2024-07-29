@@ -6,9 +6,15 @@ import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import "../../../styles/dashboard.css";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { TextField } from "@mui/material";
+import { startOfDay, endOfDay, format } from "date-fns";
+
+const formatFechaVenta = (timestamp) => {
+  const date = new Date(timestamp.seconds * 1000);
+  return format(date, "dd/MM/yyyy");
+};
 
 const Dashboard = () => {
   const [ventas, setVentas] = useState([]);
@@ -19,6 +25,21 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTipoPago, setSelectedTipoPago] = useState("todos");
+
+  const filtrarPorTipoPago = (ventas, tipoPago) => {
+    if (tipoPago === "todos") return ventas;
+    return ventas.filter((venta) => venta.tipoPago === tipoPago);
+  };
+
+  const filtrarPorFecha = (ventas, fecha) => {
+    if (!fecha) return ventas;
+    const start = startOfDay(new Date(fecha));
+    const end = endOfDay(new Date(fecha));
+    return ventas.filter(
+      (venta) => venta.fecha >= start && venta.fecha <= end
+    );
+  };
 
   const calculateMetrics = (ventasList, productsData) => {
     const salesByType = {};
@@ -30,32 +51,20 @@ const Dashboard = () => {
       const { tipoPago, totalVenta, nombreUsuario, productos } = sale;
 
       // Calcula ventas por tipo de pago
-      if (salesByType[tipoPago]) {
-        salesByType[tipoPago] += 1;
-      } else {
-        salesByType[tipoPago] = 1;
-      }
+      salesByType[tipoPago] = (salesByType[tipoPago] || 0) + 1;
 
       // Calcula ventas por usuario
-      if (salesByUser[nombreUsuario]) {
-        salesByUser[nombreUsuario] += totalVenta; // Mantener el signo
-      } else {
-        salesByUser[nombreUsuario] = totalVenta; // Mantener el signo
-      }
+      salesByUser[nombreUsuario] = (salesByUser[nombreUsuario] || 0) + totalVenta;
 
       // Calcula ventas por producto
       productos.forEach((product) => {
         const { idProducto, cantidad } = product;
         const nombreProducto = productsData[idProducto] || idProducto;
-        if (salesByProduct[nombreProducto]) {
-          salesByProduct[nombreProducto] += cantidad;
-        } else {
-          salesByProduct[nombreProducto] = cantidad;
-        }
+        salesByProduct[nombreProducto] = (salesByProduct[nombreProducto] || 0) + cantidad;
       });
 
       // Calcula total de ventas
-      totalSales += totalVenta; // Mantener el signo
+      totalSales += totalVenta;
     });
 
     setSalesByType(salesByType);
@@ -71,12 +80,11 @@ const Dashboard = () => {
         const usersCollection = collection(db, "users");
         const productsCollection = collection(db, "products");
 
-        const [ventasSnapshot, usersSnapshot, productsSnapshot] =
-          await Promise.all([
-            getDocs(ventasCollection),
-            getDocs(usersCollection),
-            getDocs(productsCollection),
-          ]);
+        const [ventasSnapshot, usersSnapshot, productsSnapshot] = await Promise.all([
+          getDocs(ventasCollection),
+          getDocs(usersCollection),
+          getDocs(productsCollection),
+        ]);
 
         const usersData = {};
         usersSnapshot.forEach((doc) => {
@@ -105,17 +113,17 @@ const Dashboard = () => {
               nombreUsuario: usersData[data.idUsuario] || "N/A",
               fecha: saleDate,
             };
-          })
-          .filter((sale) => {
-            const saleDate = new Date(sale.fecha);
-            return (
-              saleDate.toDateString() === selectedDate.toDateString()
-            );
           });
 
-        setVentas(ventasList);
+        const ventasFiltradas = filtrarPorTipoPago(
+          filtrarPorFecha(ventasList, selectedDate),
+          selectedTipoPago
+        );
+
+        // Recalcular métricas después de filtrar ventas
+        calculateMetrics(ventasFiltradas, productsData);
+        setVentas(ventasFiltradas);
         setLoading(false);
-        calculateMetrics(ventasList, productsData);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Ocurrió un error al cargar el historial de ventas");
@@ -124,7 +132,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [selectedDate]);
+  }, [selectedDate, selectedTipoPago]);
 
   const salesByTypeData = {
     labels: Object.keys(salesByType),
@@ -160,7 +168,7 @@ const Dashboard = () => {
   };
 
   const salesByProductData = {
-    labels: Object.keys(salesByProduct),
+    labels: Object.keys(salesByProduct), // Nombres de productos como etiquetas
     datasets: [
       {
         label: "Ventas por Producto",
@@ -178,7 +186,7 @@ const Dashboard = () => {
   };
 
   const formatoDinero = (amount) => {
-    return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    return new Intl.NumberFormat('es-ES').format(amount);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -202,28 +210,31 @@ const Dashboard = () => {
             />
           </LocalizationProvider>
         </div>
-        <div className="metrics">
-          <h2>Total Ventas: ${formatoDinero(totalSales.toFixed(0))}</h2>
-        </div>
-        <div className="charts-container">
-          <div className="pie-chart">
-            <h3>Ventas por Tipo de Pago</h3>
-            <Pie data={salesByTypeData} />
+
+
+          <div className="metrics">
+            <h2>Total Ventas: ${formatoDinero(totalSales.toFixed(0))}</h2>
           </div>
-          <div className="bar-charts">
-            <div className="chart">
-              <h3>Ventas por Usuario</h3>
-              <Bar data={salesByUserData} />
+          <div className="charts-container">
+            <div className="pie-chart">
+              <h3>Ventas por Tipo de Pago</h3>
+              <Pie data={salesByTypeData} />
             </div>
-            <div className="chart">
-              <h3>Ventas por Producto</h3>
-              <Bar data={salesByProductData} />
+            <div className="bar-charts">
+              <div className="chart">
+                <h3>Ventas por Usuario</h3>
+                <Bar data={salesByUserData} />
+              </div>
+              <div className="chart">
+                <h3>Ventas por Producto</h3>
+                <Bar data={salesByProductData} />
+              </div>
             </div>
           </div>
+
         </div>
       </div>
-    </div>
-  );
+    );
 };
 
 export default Dashboard;
