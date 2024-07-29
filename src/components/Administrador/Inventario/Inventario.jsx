@@ -113,7 +113,7 @@ const Inventario = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const productRef = doc(db, "productos", formData.idProducto);
       await updateDoc(productRef, {
@@ -123,7 +123,11 @@ const Inventario = () => {
         marcaProducto: formData.marcaProducto,
         cantidadProducto: Number(formData.cantidadProducto),
       });
-
+  
+      // Verificar si los productos se actualizan correctamente
+      console.log("Productos antes de actualizar:", productos);
+      console.log("Inventario filtrado antes de actualizar:", inventarioFiltrado);
+  
       setProductos((prevProductos) =>
         prevProductos.map((producto) => {
           if (producto.idProducto === productoEditado.idProducto) {
@@ -135,7 +139,7 @@ const Inventario = () => {
           return producto;
         })
       );
-
+  
       setInventarioFiltrado((prevInventario) =>
         prevInventario.map((producto) => {
           if (producto.idProducto === productoEditado.idProducto) {
@@ -147,20 +151,27 @@ const Inventario = () => {
           return producto;
         })
       );
-
+  
+      // Verificar si los productos se actualizan correctamente después de la actualización
+      console.log("Productos después de actualizar:", productos);
+      console.log("Inventario filtrado después de actualizar:", inventarioFiltrado);
+  
       handleCloseModal();
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
     }
   };
+  
+  
 
   const totalProductos = inventarioFiltrado.reduce((total, producto) => {
     return total + producto.cantidadProducto;
   }, 0);
-
+  
   const totalInventario = inventarioFiltrado.reduce((total, producto) => {
     return total + producto.precioProducto * producto.cantidadProducto;
   }, 0);
+  
 
   if (loading) return <p>Cargando productos...</p>;
   if (error) return <p>{error}</p>;
