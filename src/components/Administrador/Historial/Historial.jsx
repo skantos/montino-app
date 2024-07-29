@@ -120,10 +120,8 @@ const Historial = () => {
     try {
       const ventaRef = doc(db, "sales", ventaEdit.idVenta);
       await updateDoc(ventaRef, {
-        fechaVenta: ventaEdit.fechaVenta,
         idUsuario: ventaEdit.idUsuario,
         tipoPago: ventaEdit.tipoPago,
-        productos: ventaEdit.productos,
         totalVenta: parseFloat(ventaEdit.totalVenta),
       });
       setHistorial((prevHistorial) =>
@@ -161,6 +159,8 @@ const Historial = () => {
         return "Efectivo";
       case "tarjeta":
         return "Tarjeta";
+      case "devolucion":
+        return "Devolución";
       default:
         return tipoPago;
     }
@@ -210,6 +210,7 @@ const Historial = () => {
                 <MenuItem value="todos">Todos</MenuItem>
                 <MenuItem value="efectivo">Efectivo</MenuItem>
                 <MenuItem value="tarjeta">Tarjeta</MenuItem>
+                <MenuItem value="devolucion">Devolución</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -280,27 +281,6 @@ const Historial = () => {
           <DialogContent>
             {ventaEdit && (
               <div>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DatePicker
-                    label="Fecha de Venta"
-                    value={ventaEdit.fechaVenta}
-                    onChange={(date) =>
-                      setVentaEdit((prevVenta) => ({
-                        ...prevVenta,
-                        fechaVenta: date,
-                      }))
-                    }
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </LocalizationProvider>
-                <TextField
-                  label="Nombre Usuario"
-                  name="idUsuario"
-                  value={ventaEdit.idUsuario}
-                  onChange={handleEditChange}
-                  fullWidth
-                  margin="normal"
-                />
                 <FormControl fullWidth margin="normal">
                   <InputLabel id="tipoPago-label">Tipo de Pago</InputLabel>
                   <Select
@@ -312,20 +292,13 @@ const Historial = () => {
                   >
                     <MenuItem value="efectivo">Efectivo</MenuItem>
                     <MenuItem value="tarjeta">Tarjeta</MenuItem>
+                    <MenuItem value="devolucion">Devolución</MenuItem>
                   </Select>
                 </FormControl>
                 <TextField
                   label="Total Venta"
                   name="totalVenta"
                   value={ventaEdit.totalVenta}
-                  onChange={handleEditChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Productos"
-                  name="productos"
-                  value={ventaEdit.productos}
                   onChange={handleEditChange}
                   fullWidth
                   margin="normal"
