@@ -41,7 +41,7 @@ const Historial = () => {
   const [ventaEdit, setVentaEdit] = useState(null);
   const [ventaDetail, setVentaDetail] = useState(null);
   const [selectedTipoPago, setSelectedTipoPago] = useState("todos");
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -284,7 +284,12 @@ const Historial = () => {
                   <DatePicker
                     label="Fecha de Venta"
                     value={ventaEdit.fechaVenta}
-                    onChange={handleDateChange}
+                    onChange={(date) =>
+                      setVentaEdit((prevVenta) => ({
+                        ...prevVenta,
+                        fechaVenta: date,
+                      }))
+                    }
                     renderInput={(params) => <TextField {...params} />}
                   />
                 </LocalizationProvider>
