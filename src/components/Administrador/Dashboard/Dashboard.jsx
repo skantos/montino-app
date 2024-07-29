@@ -5,6 +5,10 @@ import { collection, getDocs } from "firebase/firestore";
 import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import "../../../styles/dashboard.css";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { TextField } from "@mui/material";
 
 const Dashboard = () => {
   const [ventas, setVentas] = useState([]);
@@ -14,6 +18,7 @@ const Dashboard = () => {
   const [totalSales, setTotalSales] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const calculateMetrics = (ventasList, productsData) => {
     const salesByType = {};
@@ -24,18 +29,21 @@ const Dashboard = () => {
     ventasList.forEach((sale) => {
       const { tipoPago, totalVenta, nombreUsuario, productos } = sale;
 
+      // Calcula ventas por tipo de pago
       if (salesByType[tipoPago]) {
         salesByType[tipoPago] += 1;
       } else {
         salesByType[tipoPago] = 1;
       }
 
+      // Calcula ventas por usuario
       if (salesByUser[nombreUsuario]) {
-        salesByUser[nombreUsuario] += Math.abs(totalVenta);
+        salesByUser[nombreUsuario] += totalVenta; // Mantener el signo
       } else {
-        salesByUser[nombreUsuario] = Math.abs(totalVenta);
+        salesByUser[nombreUsuario] = totalVenta; // Mantener el signo
       }
 
+      // Calcula ventas por producto
       productos.forEach((product) => {
         const { idProducto, cantidad } = product;
         const nombreProducto = productsData[idProducto] || idProducto;
@@ -46,7 +54,8 @@ const Dashboard = () => {
         }
       });
 
-      totalSales += Math.abs(totalVenta);
+      // Calcula total de ventas
+      totalSales += totalVenta; // Mantener el signo
     });
 
     setSalesByType(salesByType);
@@ -79,14 +88,30 @@ const Dashboard = () => {
           productsData[doc.id] = doc.data().nombreProducto;
         });
 
-        const ventasList = ventasSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            idVenta: doc.id,
-            ...data,
-            nombreUsuario: usersData[data.idUsuario] || "N/A",
-          };
-        });
+        const ventasList = ventasSnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            let saleDate;
+            if (data.fecha && data.fecha.toDate) {
+              saleDate = data.fecha.toDate(); // Firestore Timestamp
+            } else if (data.fecha && data.fecha.toDate === undefined) {
+              saleDate = new Date(data.fecha); // Assumed to be a Date
+            } else {
+              saleDate = new Date(); // Default to now if no fecha
+            }
+            return {
+              idVenta: doc.id,
+              ...data,
+              nombreUsuario: usersData[data.idUsuario] || "N/A",
+              fecha: saleDate,
+            };
+          })
+          .filter((sale) => {
+            const saleDate = new Date(sale.fecha);
+            return (
+              saleDate.toDateString() === selectedDate.toDateString()
+            );
+          });
 
         setVentas(ventasList);
         setLoading(false);
@@ -99,7 +124,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedDate]);
 
   const salesByTypeData = {
     labels: Object.keys(salesByType),
@@ -165,6 +190,18 @@ const Dashboard = () => {
         <NavbarAdmin />
       </div>
       <div className="container">
+        <div className="date-filter">
+          <h3>Filtrar por Fecha</h3>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              value={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              renderInput={(params) => (
+                <TextField {...params} style={{ marginBottom: "16px" }} />
+              )}
+            />
+          </LocalizationProvider>
+        </div>
         <div className="metrics">
           <h2>Total Ventas: ${formatoDinero(totalSales.toFixed(0))}</h2>
         </div>
