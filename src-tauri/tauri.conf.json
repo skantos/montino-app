@@ -56,10 +56,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 650,
         "resizable": true,
-        "title": "montino-app",
-        "width": 650
+        "title": "Montino",
+        "minWidth": 650,
+        "minHeight": 650   
       }
     ]
   }
