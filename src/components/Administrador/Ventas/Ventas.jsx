@@ -205,6 +205,9 @@ const Ventas = () => {
     return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
 
+  const totalProductos = carrito.reduce((total, producto) => total + producto.cantidad, 0);
+  const totalMonto = carrito.reduce((total, producto) => total + producto.precioProducto * producto.cantidad, 0);
+
   if (loading) {
     return (
       <div>
@@ -222,7 +225,6 @@ const Ventas = () => {
       <main className="main1">
         <div className="carrito-label">
           <p className="form-title">Carrito de compras</p>
-          <hr />
           <div className="encabezado">
             <input
               className="carrito-input"
@@ -256,6 +258,16 @@ const Ventas = () => {
               }}
             />
           </div>
+          <label className="textp" htmlFor="tipoPago">Tipo de pago:</label>
+            <select
+              id="tipoPago"
+              value={tipoPago}
+              onChange={handleTipoPagoChange}
+              className="carrito-input"
+            >
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+            </select>
 
           {error && <p className="error">{error}</p>}
 
@@ -323,20 +335,16 @@ const Ventas = () => {
               </tbody>
             </table>
           </section>
+
+
+
           <div className="pago">
-            <label htmlFor="tipoPago">Tipo de pago:</label>
-            <select
-              id="tipoPago"
-              value={tipoPago}
-              onChange={handleTipoPagoChange}
-              className="carrito-input"
-            >
-              <option value="efectivo">Efectivo</option>
-              <option value="tarjeta">Tarjeta</option>
-            </select>
+            {/* <p className="textp">Total de productos: {totalProductos}</p>
+            <br /> */}
+            <p className="textp">Total monto: ${formatoDinero(totalMonto)}</p>
             {tipoPago === "efectivo" && (
               <div>
-                <label htmlFor="cantidadEntregada">Cantidad entregada:</label>
+                <label className="textp" htmlFor="cantidadEntregada">Cantidad entregada:</label>
                 <input
                   id="cantidadEntregada"
                   type="number"
