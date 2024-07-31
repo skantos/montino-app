@@ -187,7 +187,7 @@ const Inventario = () => {
             <p className="form-title">
               Total del Inventario: ${formatoDinero(totalInventario)}
             </p>
-            <p className="form-title">Total de productos: {totalProductos}</p>
+            {/* <p className="form-title">Total de productos: {totalProductos}</p> */}
             <input
               className="buscar"
               type="text"
