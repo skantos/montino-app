@@ -1,9 +1,27 @@
+.layout {
+    display: flex;
+    width: 100%;
+  }
+
+.columna-izquierda,
+.columna-derecha {
+  flex: 1;
+  padding: 1rem;
+}
+
+
+.columna-izquierda{
+    max-width: 35%;
+}
+
+
+
 
 .main1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 1px;
     width: 100%;
 }
 .encabezado{
@@ -45,7 +63,7 @@
 
 
 .carrito-label{
-    width: 700px;
+    width: 100%;
     padding: 30px;
     height: fit-content;
     background-color: #f5f5f5;

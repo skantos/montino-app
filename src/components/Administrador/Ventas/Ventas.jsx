@@ -92,7 +92,7 @@ const Ventas = () => {
         }
       } else {
         if (producto.cantidadProducto >= cantidad) {
-          return [...prevCarrito, { ...producto, cantidad }];
+          return [...prevCarrito, { ...producto, cantidad, precioOriginal: producto.precioOriginal }];
         } else {
           alert("Stock insuficiente");
           return prevCarrito;
@@ -169,6 +169,7 @@ const Ventas = () => {
       marcaProducto: producto.marcaProducto,
       categoriaProducto: producto.categoriaProducto,
       precioProducto: producto.precioProducto,
+      precioOriginal: producto.precioOriginal,  // Incluir precioOriginal
       cantidad: producto.cantidad,
       cantidadProducto: producto.cantidadProducto,
     }));
@@ -208,6 +209,13 @@ const Ventas = () => {
   const totalProductos = carrito.reduce((total, producto) => total + producto.cantidad, 0);
   const totalMonto = carrito.reduce((total, producto) => total + producto.precioProducto * producto.cantidad, 0);
 
+  // Calcular la ganancia total
+  const totalGanancia = carrito.reduce(
+    (total, producto) =>
+      total + (producto.precioProducto - producto.precioOriginal) * producto.cantidad,
+    0
+  );
+
   if (loading) {
     return (
       <div>
@@ -223,143 +231,157 @@ const Ventas = () => {
         <NavbarAdmin />
       </div>
       <main className="main1">
-        <div className="carrito-label">
-          <p className="form-title">Carrito de compras</p>
-          <div className="encabezado">
-            <input
-              className="carrito-input"
-              type="text"
-              placeholder="Buscar producto por ID..."
-              value={idProductoBuscado}
-              onChange={filtrarInventario}
-              onBlur={() => {
-                if (idProductoBuscado.length > 0) {
-                  const productoEncontrado = productos.find(
-                    (producto) => String(producto.id) === idProductoBuscado
-                  );
-                  if (productoEncontrado) {
-                    agregarAlCarrito(productoEncontrado);
-                    setIdProductoBuscado("");
-                  } else {
-                    setError("Producto no encontrado.");
-                  }
-                }
-              }}
-            />
-            <input
-              className="carrito-input"
-              type="number"
-              placeholder="Cantidad..."
-              value={cantidadBuscada}
-              min="1"
-              onChange={(e) => {
-                const valor = parseInt(e.target.value);
-                setCantidadBuscada(valor < 1 ? 1 : valor);
-              }}
-            />
-          </div>
-          <label className="textp" htmlFor="tipoPago">Tipo de pago:</label>
-            <select
-              id="tipoPago"
-              value={tipoPago}
-              onChange={handleTipoPagoChange}
-              className="carrito-input"
-            >
-              <option value="efectivo">Efectivo</option>
-              <option value="tarjeta">Tarjeta</option>
-            </select>
-
-          {error && <p className="error">{error}</p>}
-
-          <section className="tabla-ventas">
-            <table className="carrito-tabla">
-              <thead className="carrito-th">
-                <tr className="carrito-tr">
-                  <th className="carrito-th">Producto</th>
-                  <th className="carrito-th">Precio</th>
-                  <th className="carrito-th">Cantidad</th>
-                  <th className="carrito-th">Total</th>
-                  <th className="carrito-th">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="carrito-items">
-                {carrito.map((producto) => (
-                  <tr className="carrito-tr" key={producto.idProducto}>
-                    <td className="carrito-td">
-                      <p className="txt-carrito">{producto.nombreProducto}</p>
-                    </td>
-                    <td className="carrito-td">
-                      <p className="txt-carrito">
-                        ${formatoDinero(producto.precioProducto)}
-                      </p>
-                    </td>
-                    <td className="carrito-td">
-                      <p className="txt-carrito">
-                        <button
-                          className="boton-resta"
-                          onClick={() =>
-                            decrementarCantidad(producto.idProducto)
-                          }
-                        >
-                          <FontAwesomeIcon icon={faMinus} />
-                        </button>
-                        {producto.cantidad}
-                        <button
-                          className="boton-suma"
-                          onClick={() =>
-                            incrementarCantidad(producto.idProducto)
-                          }
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                        </button>
-                      </p>
-                    </td>
-                    <td className="carrito-td">
-                      <p className="txt-carrito">
-                        $
-                        {formatoDinero(
-                          producto.precioProducto * producto.cantidad
-                        )}
-                      </p>
-                    </td>
-                    <td className="carrito-td">
-                      <button
-                        className="boton-eliminar"
-                        onClick={() => eliminarDelCarrito(producto.idProducto)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-
-
-
-          <div className="pago">
-            {/* <p className="textp">Total de productos: {totalProductos}</p>
-            <br /> */}
-            <p className="textp">Total monto: ${formatoDinero(totalMonto)}</p>
-            {tipoPago === "efectivo" && (
-              <div>
-                <label className="textp" htmlFor="cantidadEntregada">Cantidad entregada:</label>
+        <div className="layout">
+          {/* Columna izquierda */}
+          <div className="columna-izquierda">
+            <div className="carrito-label">
+              <p className="form-title">Carrito de compras</p>
+              <div className="encabezado">
                 <input
-                  id="cantidadEntregada"
-                  type="number"
-                  value={cantidadEntregada}
-                  onChange={handleCantidadEntregadaChange}
                   className="carrito-input"
+                  type="text"
+                  placeholder="Buscar producto por ID..."
+                  value={idProductoBuscado}
+                  onChange={filtrarInventario}
+                  onBlur={() => {
+                    if (idProductoBuscado.length > 0) {
+                      const productoEncontrado = productos.find(
+                        (producto) => String(producto.id) === idProductoBuscado
+                      );
+                      if (productoEncontrado) {
+                        agregarAlCarrito(productoEncontrado);
+                        setIdProductoBuscado("");
+                      } else {
+                        setError("Producto no encontrado.");
+                      }
+                    }
+                  }}
                 />
-                <p className="textp">Vuelto: ${formatoDinero(vuelto)}</p>
+                <input
+                  className="carrito-input"
+                  type="number"
+                  placeholder="Cantidad..."
+                  value={cantidadBuscada}
+                  min="1"
+                  onChange={(e) => {
+                    const valor = parseInt(e.target.value);
+                    setCantidadBuscada(valor < 1 ? 1 : valor);
+                  }}
+                />
               </div>
-            )}
+              <label className="textp" htmlFor="tipoPago">Tipo de pago:</label>
+              <select
+                id="tipoPago"
+                value={tipoPago}
+                onChange={handleTipoPagoChange}
+                className="carrito-input"
+              >
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+              </select>
+
+              {error && <p className="error">{error}</p>}
+
+              <div className="pago">
+                <p className="textp">Total productos: {totalProductos}</p>
+                <br />
+                <p className="textp">Total ganancia: ${formatoDinero(totalGanancia)}</p> {/* Mostrar ganancia total */}
+                <br />
+                <p className="textp">Total monto: ${formatoDinero(totalMonto)}</p>
+                {tipoPago === "efectivo" && (
+                  <div>
+                    <label className="textp" htmlFor="cantidadEntregada">Cantidad entregada:</label>
+                    <input
+                      id="cantidadEntregada"
+                      type="number"
+                      value={cantidadEntregada}
+                      onChange={handleCantidadEntregadaChange}
+                      className="carrito-input"
+                    />
+                    <p className="textp">Vuelto: ${formatoDinero(vuelto)}</p>
+                  </div>
+                )}
+              </div>
+
+              <button className="boton-venta" onClick={handleSubmit}>
+                <span>Finalizar Venta</span>
+              </button>
+            </div>
           </div>
 
-          <button className="boton-venta" onClick={handleSubmit}>
-            <span>Finalizar Venta</span>
-          </button>
+          {/* Columna derecha */}
+          <div className="columna-derecha">
+            <section className="tabla-ventas">
+              <table className="carrito-tabla">
+                <thead className="carrito-th">
+                  <tr className="carrito-tr">
+                    <th className="carrito-th">Producto</th>
+                    <th className="carrito-th">Precio</th>
+                    <th className="carrito-th">Precio Original</th> {/* Nueva columna */}
+                    <th className="carrito-th">Cantidad</th>
+                    <th className="carrito-th">Total</th>
+                    <th className="carrito-th">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="carrito-items">
+                  {carrito.map((producto) => (
+                    <tr className="carrito-tr" key={producto.id}>
+                      <td className="carrito-td">
+                        <p className="txt-carrito">{producto.nombreProducto}</p>
+                      </td>
+                      <td className="carrito-td">
+                        <p className="txt-carrito">
+                          ${formatoDinero(producto.precioProducto)}
+                        </p>
+                      </td>
+                      <td className="carrito-td">
+                        <p className="txt-carrito">
+                          ${formatoDinero(producto.precioOriginal)}
+                        </p>
+                      </td> {/* Mostrar precioOriginal */}
+                      <td className="carrito-td">
+                        <p className="txt-carrito">
+                          <button
+                            className="boton-resta"
+                            onClick={() =>
+                              decrementarCantidad(producto.id)
+                            }
+                          >
+                            <FontAwesomeIcon icon={faMinus} />
+                          </button>
+                          {producto.cantidad}
+                          <button
+                            className="boton-suma"
+                            onClick={() =>
+                              incrementarCantidad(producto.id)
+                            }
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </button>
+                        </p>
+                      </td>
+                      <td className="carrito-td">
+                        <p className="txt-carrito">
+                          $
+                          {formatoDinero(
+                            producto.precioProducto * producto.cantidad
+                          )}
+                        </p>
+                      </td>
+                      <td className="carrito-td">
+                        <button
+                          className="boton-eliminar"
+                          onClick={() => eliminarDelCarrito(producto.id)}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          </div>
         </div>
       </main>
     </div>
