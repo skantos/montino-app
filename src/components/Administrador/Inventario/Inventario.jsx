@@ -17,6 +17,7 @@ const Inventario = () => {
     idProducto: "",
     nombreProducto: "",
     precioProducto: "",
+    precioOriginal: "", // Nuevo campo para precio original
     categoriaProducto: "",
     marcaProducto: "",
     cantidadProducto: "",
@@ -80,10 +81,13 @@ const Inventario = () => {
       setInventarioFiltrado(inventarioFiltrados);
     }
   };
-
   const formatoDinero = (amount) => {
+    if (amount === undefined || amount === null) {
+      return "0";
+    }
     return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
+  
 
   const handleEditClick = (producto) => {
     setProductoEditado(producto);
@@ -91,6 +95,7 @@ const Inventario = () => {
       idProducto: producto.idProducto,
       nombreProducto: producto.nombreProducto,
       precioProducto: producto.precioProducto,
+      precioOriginal: producto.precioOriginal, // Añadir precio original
       categoriaProducto: producto.categoriaProducto,
       marcaProducto: producto.marcaProducto,
       cantidadProducto: producto.cantidadProducto,
@@ -113,21 +118,18 @@ const Inventario = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const productRef = doc(db, "productos", formData.idProducto);
       await updateDoc(productRef, {
         nombreProducto: formData.nombreProducto,
         precioProducto: Number(formData.precioProducto),
+        precioOriginal: Number(formData.precioOriginal), // Añadir precio original
         categoriaProducto: formData.categoriaProducto,
         marcaProducto: formData.marcaProducto,
         cantidadProducto: Number(formData.cantidadProducto),
       });
-  
-      // Verificar si los productos se actualizan correctamente
-      console.log("Productos antes de actualizar:", productos);
-      console.log("Inventario filtrado antes de actualizar:", inventarioFiltrado);
-  
+
       setProductos((prevProductos) =>
         prevProductos.map((producto) => {
           if (producto.idProducto === productoEditado.idProducto) {
@@ -139,7 +141,7 @@ const Inventario = () => {
           return producto;
         })
       );
-  
+
       setInventarioFiltrado((prevInventario) =>
         prevInventario.map((producto) => {
           if (producto.idProducto === productoEditado.idProducto) {
@@ -151,27 +153,24 @@ const Inventario = () => {
           return producto;
         })
       );
-  
-      // Verificar si los productos se actualizan correctamente después de la actualización
-      console.log("Productos después de actualizar:", productos);
-      console.log("Inventario filtrado después de actualizar:", inventarioFiltrado);
-  
+
       handleCloseModal();
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
     }
   };
-  
-  
 
   const totalProductos = inventarioFiltrado.reduce((total, producto) => {
     return total + producto.cantidadProducto;
   }, 0);
-  
+
   const totalInventario = inventarioFiltrado.reduce((total, producto) => {
     return total + producto.precioProducto * producto.cantidadProducto;
   }, 0);
-  
+
+  const totalOriginal = inventarioFiltrado.reduce((total, producto) => {
+    return total + producto.precioOriginal * producto.cantidadProducto;
+  }, 0);
 
   if (loading) return <p>Cargando productos...</p>;
   if (error) return <p>{error}</p>;
@@ -187,21 +186,15 @@ const Inventario = () => {
             <p className="form-title">
               Total del Inventario: ${formatoDinero(totalInventario)}
             </p>
-            {/* <p className="form-title">Total de productos: {totalProductos}</p> */}
-
-            {/* <input
-              className="buscar"
-              type="text"
-              placeholder="Buscar producto"
-              onChange={filtrarInventario}
-            /> */}
-            <div class="container-input">
-              <input type="text" placeholder="Buscar producto" name="text" class="input" onChange={filtrarInventario}/>
+            <p className="form-title">
+              Total Original: ${formatoDinero(totalOriginal)}
+            </p>
+            <div className="container-input">
+              <input type="text" placeholder="Buscar producto" name="text" className="input" onChange={filtrarInventario}/>
               <svg fill="#000000" width="20px" height="20px" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
-                <path d="M790.588 1468.235c-373.722 0-677.647-303.924-677.647-677.647 0-373.722 303.925-677.647 677.647-677.647 373.723 0 677.647 303.925 677.647 677.647 0 373.723-303.924 677.647-677.647 677.647Zm596.781-160.715c120.396-138.692 193.807-319.285 193.807-516.932C1581.176 354.748 1226.428 0 790.588 0S0 354.748 0 790.588s354.748 790.588 790.588 790.588c197.647 0 378.24-73.411 516.932-193.807l516.028 516.142 79.963-79.963-516.142-516.028Z" fill-rule="evenodd"></path>
-            </svg>
+                <path d="M790.588 1468.235c-373.722 0-677.647-303.924-677.647-677.647 0-373.722 303.925-677.647 677.647-677.647 373.723 0 677.647 303.925 677.647 677.647 0 373.723-303.924 677.647-677.647 677.647Zm596.781-160.715c120.396-138.692 193.807-319.285 193.807-516.932C1581.176 354.748 1226.428 0 790.588 0S0 354.748 0 790.588s354.748 790.588 790.588 790.588c197.647 0 378.24-73.411 516.932-193.807l516.028 516.142 79.963-79.963-516.142-516.028Z" fillRule="evenodd"></path>
+              </svg>
             </div>
-
           </section>
           <section className="table-body">
             <table className="tabla-inventario">
@@ -210,6 +203,8 @@ const Inventario = () => {
                   <th>Codigo</th>
                   <th>Nombre</th>
                   <th>Precio</th>
+                  <th>Precio Original</th> {/* Nueva columna para Precio Original */}
+                  <th>Ganancias</th> {/* Nueva columna para Ganancias */}
                   <th>Categoria</th>
                   <th>Marca</th>
                   <th>Cantidad</th>
@@ -223,6 +218,8 @@ const Inventario = () => {
                       <td>{producto.idProducto}</td>
                       <td>{producto.nombreProducto}</td>
                       <td>{formatoDinero(producto.precioProducto)}</td>
+                      <td>{formatoDinero(producto.precioOriginal)}</td> {/* Mostrar Precio Original */}
+                      <td>{formatoDinero(producto.precioProducto - producto.precioOriginal)}</td> {/* Calcular y mostrar Ganancias */}
                       <td>{producto.categoriaProducto}</td>
                       <td>{producto.marcaProducto}</td>
                       <td>
@@ -250,7 +247,7 @@ const Inventario = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7">No hay productos disponibles</td>
+                    <td colSpan="9">No hay productos disponibles</td>
                   </tr>
                 )}
               </tbody>
@@ -278,6 +275,15 @@ const Inventario = () => {
                     type="number"
                     name="precioProducto"
                     value={formData.precioProducto}
+                    onChange={handleInputChange}
+                  />
+                </label>
+                <label>
+                  Precio Original:
+                  <input
+                    type="number"
+                    name="precioOriginal"
+                    value={formData.precioOriginal}
                     onChange={handleInputChange}
                   />
                 </label>
