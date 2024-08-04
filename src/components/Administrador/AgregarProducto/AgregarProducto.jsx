@@ -8,6 +8,7 @@ const AgregarProducto = () => {
   const [idProducto, setIdProducto] = useState("");
   const [nombreProducto, setNombreProducto] = useState("");
   const [precioProducto, setPrecioProducto] = useState("");
+  const [precioOriginal, setPrecioOriginal] = useState(""); // Nuevo estado para precio original
   const [categoriaProducto, setCategoriaProducto] = useState("");
   const [marcaProducto, setMarcaProducto] = useState("");
   const [cantidadProducto, setCantidadProducto] = useState("");
@@ -42,6 +43,7 @@ const AgregarProducto = () => {
         idProducto,
         nombreProducto,
         precioProducto,
+        precioOriginal, // Añadir precio original
         categoriaProducto,
         marcaProducto,
         cantidadProducto,
@@ -51,6 +53,7 @@ const AgregarProducto = () => {
       setIdProducto("");
       setNombreProducto("");
       setPrecioProducto("");
+      setPrecioOriginal(""); // Limpiar precio original
       setCategoriaProducto("");
       setMarcaProducto("");
       setCantidadProducto("");
@@ -98,6 +101,16 @@ const AgregarProducto = () => {
                   placeholder="Precio Producto"
                   value={precioProducto}
                   onChange={(e) => setPrecioProducto(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="input-producto">
+                <p>Precio Original</p>
+                <input
+                  type="text"
+                  placeholder="Precio Original"
+                  value={precioOriginal}
+                  onChange={(e) => setPrecioOriginal(e.target.value)}
                   required
                 />
               </div>
