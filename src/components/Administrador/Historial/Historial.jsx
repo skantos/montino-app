@@ -191,6 +191,15 @@ const Historial = () => {
                 )
               )}
             </p>
+            <p className="form-title">
+              Total del día: $
+              {formatoDinero(
+                ventasFiltradas.reduce(
+                  (total, venta) => total + (parseFloat(venta.totalGanancia) || 0),
+                  0
+                )
+              )}
+            </p>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 className="fecha"
@@ -240,6 +249,7 @@ const Historial = () => {
                     <TableCell>Nombre Usuario</TableCell>
                     <TableCell>Tipo Pago</TableCell>
                     <TableCell>Total Venta</TableCell>
+                    <TableCell>Total Ganancia</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
@@ -254,6 +264,9 @@ const Historial = () => {
                       <TableCell>{translateTipoPago(venta.tipoPago)}</TableCell>
                       <TableCell>
                         ${formatoDinero(parseFloat(venta.totalVenta) || 0)}
+                      </TableCell>
+                      <TableCell>
+                        ${formatoDinero(parseFloat(venta.totalGanancia) || 0)}
                       </TableCell>
                       <TableCell>
                         <Button

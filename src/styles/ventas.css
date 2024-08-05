@@ -61,7 +61,12 @@
     outline: 1px solid lightgrey;
 }
 
-
+.carrito-label-devolucion{
+    width: 900px;
+    padding: 30px;
+    height: fit-content;
+    background-color: #f5f5f5;
+}
 .carrito-label{
     width: 100%;
     padding: 30px;

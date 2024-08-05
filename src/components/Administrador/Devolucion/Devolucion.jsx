@@ -209,7 +209,7 @@ const Devolucion = () => {
     <div>
       <NavbarAdmin />
       <main className="main1">
-        <div className="carrito-label">
+        <div className="carrito-label-devolucion">
           <p className="form-title">Devolución</p>
           <hr />
           <div className="encabezado">

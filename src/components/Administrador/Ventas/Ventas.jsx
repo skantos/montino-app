@@ -180,6 +180,7 @@ const Ventas = () => {
       await addDoc(collection(db, "sales"), {
         fechaVenta,
         totalVenta,
+        totalGanancia,
         tipoPago,
         idUsuario: identifyUser.uid,
         productos: productosVenta,
@@ -215,6 +216,7 @@ const Ventas = () => {
       total + (producto.precioProducto - producto.precioOriginal) * producto.cantidad,
     0
   );
+
 
   if (loading) {
     return (
