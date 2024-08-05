@@ -27,10 +27,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import format from "date-fns/format";
 
-const formatFechaVenta = (timestamp) => {
-  const date = new Date(timestamp.seconds * 1000);
+const formatFechaVenta = (date) => {
   return format(date, "dd/MM/yyyy");
 };
+
 
 const Historial = () => {
   const [historial, setHistorial] = useState([]);
@@ -63,15 +63,15 @@ const Historial = () => {
 
         const ventas = ventasSnapshot.docs.map((doc) => {
           const data = doc.data();
-          console.log("Venta data:", data);
           return {
             idVenta: doc.id,
             ...data,
             nombreUsuario: usersData[data.idUsuario] || "N/A",
+            fechaVenta: data.fechaVenta.toDate(), // Convierte el timestamp a objeto Date
           };
         });
+        ventas.sort((a, b) => b.fechaVenta - a.fechaVenta);
 
-        console.log("Ventas data:", ventas);
 
         setHistorial(ventas);
         setLoading(false);
@@ -142,11 +142,11 @@ const Historial = () => {
 
   const filtrarPorFecha = (ventas, fecha) => {
     if (!fecha) return ventas;
-    const fechaSeleccionada = format(new Date(fecha), "dd/MM/yyyy");
-    return ventas.filter(
-      (venta) => formatFechaVenta(venta.fechaVenta) === fechaSeleccionada
+    return ventas.filter((venta) => 
+      format(venta.fechaVenta, "dd/MM/yyyy") === format(fecha, "dd/MM/yyyy")
     );
   };
+  
 
   const ventasFiltradas = filtrarPorTipoPago(
     filtrarPorFecha(historial, selectedDate),
