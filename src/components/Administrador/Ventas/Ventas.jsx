@@ -168,8 +168,8 @@ const Ventas = () => {
       nombreProducto: producto.nombreProducto,
       marcaProducto: producto.marcaProducto,
       categoriaProducto: producto.categoriaProducto,
-      precioProducto: producto.precioProducto,
-      precioOriginal: producto.precioOriginal,  // Incluir precioOriginal
+      precioProducto: producto.precioProducto ?? 0,
+      precioOriginal: producto.precioOriginal ?? 0,
       cantidad: producto.cantidad,
       cantidadProducto: producto.cantidadProducto,
     }));
@@ -204,19 +204,23 @@ const Ventas = () => {
   };
 
   const formatoDinero = (amount) => {
+    if (amount == null) {
+      return "0";
+    }
     return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
 
   const totalProductos = carrito.reduce((total, producto) => total + producto.cantidad, 0);
   const totalMonto = carrito.reduce((total, producto) => total + producto.precioProducto * producto.cantidad, 0);
 
-  // Calcular la ganancia total
-  const totalGanancia = carrito.reduce(
-    (total, producto) =>
-      total + (producto.precioProducto - producto.precioOriginal) * producto.cantidad,
-    0
-  );
-
+  const totalGanancia = carrito.reduce((total, producto) => {
+    const precioProducto = producto.precioProducto ?? 0;
+    const precioOriginal = producto.precioOriginal ?? 0;
+  
+    const gananciaPorProducto = precioOriginal === 0 ? 0 : (precioProducto - precioOriginal) * producto.cantidad;
+    
+    return total + gananciaPorProducto;
+  }, 0);
 
   if (loading) {
     return (
