@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../../styles/historial.css";
 import NavbarAdmin from "../NavbarAdmin";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import {
   Dialog,
@@ -42,6 +42,8 @@ const Historial = () => {
   const [ventaDetail, setVentaDetail] = useState(null);
   const [selectedTipoPago, setSelectedTipoPago] = useState("todos");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [ventaToDelete, setVentaToDelete] = useState(null); // Añadido
+  const [openDeleteModal, setOpenDeleteModal] = useState(false); // Añadido
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,6 +105,16 @@ const Historial = () => {
     setOpenDetailModal(false);
     setVentaDetail(null);
   };
+  
+  const handleOpenDeleteModal = (venta) => { // Definido aquí
+    setVentaToDelete(venta);
+    setOpenDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setVentaToDelete(null);
+  };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -134,6 +146,22 @@ const Historial = () => {
       console.error("Error updating sale:", error);
     }
   };
+
+
+  const handleDelete = async () => {
+    try {
+      const ventaRef = doc(db, "sales", ventaToDelete.idVenta);
+      await deleteDoc(ventaRef);
+      setHistorial((prevHistorial) =>
+        prevHistorial.filter((venta) => venta.idVenta !== ventaToDelete.idVenta)
+      );
+      handleCloseDeleteModal();
+    } catch (error) {
+      console.error("Error deleting sale:", error);
+    }
+  };
+
+
 
   const filtrarPorTipoPago = (ventas, tipoPago) => {
     if (tipoPago === "todos") return ventas;
@@ -281,6 +309,12 @@ const Historial = () => {
                         >
                           Editar
                         </Button>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleOpenDeleteModal(venta)}
+                        >
+                          Eliminar
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -363,6 +397,40 @@ const Historial = () => {
           </DialogActions>
         </Dialog>
       )}
+
+        {openDeleteModal && (
+          <Dialog open={openDeleteModal} onClose={handleCloseDeleteModal}>
+            <DialogTitle>Eliminar Venta</DialogTitle>
+            <DialogContent>
+              {ventaToDelete && (
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>ID Venta:</TableCell>
+                      <TableCell>Fecha:</TableCell>
+                      <TableCell>Tipo de Pago:</TableCell>
+                      <TableCell>Total Venta:</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>{ventaToDelete.idVenta}</TableCell>
+                      <TableCell>{formatFechaVenta(ventaToDelete.fechaVenta)}</TableCell>
+                      <TableCell>{translateTipoPago(ventaToDelete.tipoPago)}</TableCell>
+                      <TableCell>${formatoDinero(parseFloat(ventaToDelete.totalVenta) || 0)}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDeleteModal}>Cancelar</Button>
+              <Button onClick={handleDelete} color="error">Eliminar</Button>          
+            </DialogActions>
+          </Dialog>
+        )}
+
+
     </>
   );
 };
