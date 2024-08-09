@@ -52,21 +52,11 @@ const Inventario = () => {
     } else {
       const inventarioFiltrados = productos.filter((producto) => {
         const idProductoLowerCase = String(producto.idProducto).toLowerCase();
-        const nombreProductoLowerCase = String(
-          producto.nombreProducto
-        ).toLowerCase();
-        const precioProductoLowerCase = String(
-          producto.precioProducto
-        ).toLowerCase();
-        const categoriaProductoLowerCase = String(
-          producto.categoriaProducto
-        ).toLowerCase();
-        const marcaProductoLowerCase = String(
-          producto.marcaProducto
-        ).toLowerCase();
-        const cantidadProductoLowerCase = String(
-          producto.cantidadProducto
-        ).toLowerCase();
+        const nombreProductoLowerCase = String(producto.nombreProducto).toLowerCase();
+        const precioProductoLowerCase = String(producto.precioProducto).toLowerCase();
+        const categoriaProductoLowerCase = String(producto.categoriaProducto).toLowerCase();
+        const marcaProductoLowerCase = String(producto.marcaProducto).toLowerCase();
+        const cantidadProductoLowerCase = String(producto.cantidadProducto).toLowerCase();
 
         return (
           idProductoLowerCase.includes(texto) ||
@@ -81,24 +71,22 @@ const Inventario = () => {
       setInventarioFiltrado(inventarioFiltrados);
     }
   };
+
   const formatoDinero = (amount) => {
-    if (amount === undefined || amount === null) {
-      return "0";
-    }
-    return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    const amountNumber = isNaN(amount) ? 0 : Number(amount);
+    return `${amountNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
   };
-  
 
   const handleEditClick = (producto) => {
     setProductoEditado(producto);
     setFormData({
       idProducto: producto.idProducto,
       nombreProducto: producto.nombreProducto,
-      precioProducto: producto.precioProducto,
-      precioOriginal: producto.precioOriginal, // Añadir precio original
+      precioProducto: producto.precioProducto || 0, // Asegura que sea un número
+      precioOriginal: producto.precioOriginal || 0, // Asegura que sea un número
       categoriaProducto: producto.categoriaProducto,
       marcaProducto: producto.marcaProducto,
-      cantidadProducto: producto.cantidadProducto,
+      cantidadProducto: producto.cantidadProducto || 0, // Asegura que sea un número
     });
     setOpenModal(true);
   };
@@ -123,11 +111,11 @@ const Inventario = () => {
       const productRef = doc(db, "productos", formData.idProducto);
       await updateDoc(productRef, {
         nombreProducto: formData.nombreProducto,
-        precioProducto: Number(formData.precioProducto),
-        precioOriginal: Number(formData.precioOriginal), // Añadir precio original
+        precioProducto: Number(formData.precioProducto) || 0,
+        precioOriginal: Number(formData.precioOriginal) || 0,
         categoriaProducto: formData.categoriaProducto,
         marcaProducto: formData.marcaProducto,
-        cantidadProducto: Number(formData.cantidadProducto),
+        cantidadProducto: Number(formData.cantidadProducto) || 0,
       });
 
       setProductos((prevProductos) =>
@@ -161,15 +149,17 @@ const Inventario = () => {
   };
 
   const totalProductos = inventarioFiltrado.reduce((total, producto) => {
-    return total + producto.cantidadProducto;
+    return total + (producto.cantidadProducto || 0);
   }, 0);
 
   const totalInventario = inventarioFiltrado.reduce((total, producto) => {
-    return total + producto.precioProducto * producto.cantidadProducto;
+    return total + (producto.precioProducto || 0) * (producto.cantidadProducto || 0);
   }, 0);
 
   const totalOriginal = inventarioFiltrado.reduce((total, producto) => {
-    return total + producto.precioOriginal * producto.cantidadProducto;
+    const precioOriginal = isNaN(producto.precioOriginal) ? 0 : Number(producto.precioOriginal);
+    const cantidad = isNaN(producto.cantidadProducto) ? 0 : Number(producto.cantidadProducto);
+    return total + precioOriginal * cantidad;
   }, 0);
 
   if (loading) return <p>Cargando productos...</p>;
@@ -217,22 +207,23 @@ const Inventario = () => {
                     <tr key={producto.idProducto}>
                       <td>{producto.idProducto}</td>
                       <td>{producto.nombreProducto}</td>
-                      <td>{formatoDinero(producto.precioProducto)}</td>
-                      <td>{formatoDinero(producto.precioOriginal)}</td> {/* Mostrar Precio Original */}
-                      <td>{formatoDinero(producto.precioProducto - producto.precioOriginal)}</td> {/* Calcular y mostrar Ganancias */}
+                      <td>{formatoDinero(producto.precioProducto || 0)}</td>
+                      <td>{formatoDinero(producto.precioOriginal || 0)}</td>
+                      {/* Mostrar Precio Original */}
+                      <td>{formatoDinero(((producto.precioProducto || 0) - (producto.precioOriginal || 0)) * (producto.cantidadProducto || 0))}</td> {/* Calcular y mostrar Ganancias */}
                       <td>{producto.categoriaProducto}</td>
                       <td>{producto.marcaProducto}</td>
                       <td>
                         <p
                           className={
-                            producto.cantidadProducto <= 5
+                            (producto.cantidadProducto || 0) <= 5
                               ? "cantidad-baja"
-                              : producto.cantidadProducto <= 15
+                              : (producto.cantidadProducto || 0) <= 15
                               ? "cantidad-media"
                               : "cantidad-alta"
                           }
                         >
-                          {producto.cantidadProducto}
+                          {producto.cantidadProducto || 0}
                         </p>
                       </td>
                       <td>
