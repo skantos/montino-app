@@ -107,13 +107,16 @@ const Ventas = () => {
       const stockProducto = productos.find(
         (item) => item.id === idProducto
       )?.cantidadProducto;
-
+  
       if (producto && stockProducto > producto.cantidad) {
         return prevCarrito.map((item) =>
           item.id === idProducto
             ? { ...item, cantidad: item.cantidad + 1 }
             : item
         );
+      } else if (producto && stockProducto === 0) {
+        alert("El stock del producto es 0");
+        return prevCarrito;
       } else {
         alert("Stock insuficiente");
         return prevCarrito;
@@ -125,7 +128,10 @@ const Ventas = () => {
     setCarrito((prevCarrito) =>
       prevCarrito.map((producto) =>
         producto.id === idProducto
-          ? { ...producto, cantidad: Math.max(1, producto.cantidad - 1) }
+          ? {
+              ...producto,
+              cantidad: Math.max(1, producto.cantidad - 1),
+            }
           : producto
       )
     );
@@ -157,6 +163,12 @@ const Ventas = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (carrito.length === 0) {
+      alert("No se puede registrar una venta con un carrito vacío.");
+      return; // Salir de la función si el carrito está vacío
+    }
+  
     const fechaVenta = new Date();
     const totalVenta = carrito.reduce(
       (total, producto) => total + producto.precioProducto * producto.cantidad,
