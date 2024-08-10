@@ -198,32 +198,34 @@ tbody td:hover {
     opacity: 0.9;
 }
 
+
+
 .td-editar{
     display: flex; /* Alinea los elementos en una fila */
     align-items: center; /* Alinea verticalmente el contenido */
     gap: 5px; /* Espacio entre los botones */
 }
 
-.btn-eliminar {
+.delete {
     background: #FF0000; 
-    border: none;
-    cursor: pointer;
+    border: none; 
+    cursor: pointer; 
+    padding: 10px; 
     border-radius: 5px;
-    padding: 0px 10px; /* Ajusta el padding para controlar el tamaño */
-    max-height: 40px; /* Establece la altura máxima que deseas para los botones */
-    display: inline-flex; /* Asegúrate de que los botones estén en línea */
-    align-items: center; /* Alinea el contenido verticalmente en el centro */
+    height: 40px;
+    display: inline-flex;
+    align-items: center; 
 }
 
 .btn-editar {
     background: #92D050; 
     border: none; 
     cursor: pointer; 
-    padding: 0px 10px; /* Ajusta el padding para controlar el tamaño */
+    padding: 10px;
     border-radius: 5px;
-    max-height: 40px; /* Establece la altura máxima que deseas para los botones */
-    display: inline-flex; /* Asegúrate de que los botones estén en línea */
-    align-items: center; /* Alinea el contenido verticalmente en el centro */
+    max-height: 40px;
+    display: inline-flex;
+    align-items: center; 
 }
 
 

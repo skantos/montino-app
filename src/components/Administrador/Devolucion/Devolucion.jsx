@@ -166,7 +166,7 @@ const Devolucion = () => {
         totalVenta: -totalVenta,
         idUsuario,
         productos: productosVenta,
-        tipoPago: "devolución",
+        tipoPago: "devolucion",
       });
 
       const batch = writeBatch(db);

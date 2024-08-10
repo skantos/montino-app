@@ -2,7 +2,7 @@ import "../styles/RecuperarContrasena.css";
 import React, { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -29,37 +29,39 @@ const RecuperarContrasena = () => {
   };
 
   return (
-    <div className="recuperar-contrasena">
-      <h1>Recuperar Contraseña</h1>
-      {emailSent ? (
+    <div className="login-box">
+      <p className="form-title">
+        Recuperar<br />
+        Contraseña
+      </p>      
+        {emailSent ? (
         <p>
           Se ha enviado un correo electrónico con instrucciones para restablecer
           tu contraseña.
         </p>
       ) : (
         <>
-          <TextField
+        <div className="input-container">
+          <input
             type="email"
-            label="Correo Electrónico"
+            placeholder="Correo Electrónico"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            sx={{ width: "16%" }}
+            required
           />
-          <Button
-            onClick={handleForgotPassword}
-            variant="outlined"
-            sx={{
-              fontSize: "19px",
-              marginBottom: "19px",
-              top: "10px",
-            }}
-          >
-            Enviar
-          </Button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+        </div>
+        <button onClick={handleForgotPassword} variant="outlined" className="submit">
+          Enviar
+        </button>
         </>
       )}
+      <p className="signup-link">
+        <Link to="/login" className="resetPassword">
+          Iniciar Sesion
+        </Link>
+      </p>
     </div>
+
   );
 };
 

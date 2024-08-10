@@ -8,7 +8,7 @@ import { db } from "../../../firebase";
 import { deleteDoc } from "firebase/firestore";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faMinus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPen } from "@fortawesome/free-solid-svg-icons";
 
 const Inventario = () => {
   const [productos, setProductos] = useState([]);
@@ -222,8 +222,8 @@ const Inventario = () => {
                   <th>Codigo</th>
                   <th>Nombre</th>
                   <th>Precio</th>
-                  <th>Precio Original</th> {/* Nueva columna para Precio Original */}
-                  <th>Ganancias</th> {/* Nueva columna para Ganancias */}
+                  <th>Precio Original</th> 
+                  <th>Ganancias</th>
                   <th>Categoria</th>
                   <th>Marca</th>
                   <th>Cantidad</th>
@@ -259,10 +259,10 @@ const Inventario = () => {
                           className="btn-editar"
                           onClick={() => handleEditClick(producto)}
                         >
-                          <FontAwesomeIcon icon={faTrash} />
+                          <FontAwesomeIcon icon={faPen} />
                           </button>
                         <button
-                          className="btn-eliminar"
+                          className="delete"
                           onClick={() => handleDeleteClick(producto)}
                         >
                           <FontAwesomeIcon icon={faTrash} />

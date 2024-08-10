@@ -220,7 +220,7 @@ const Historial = () => {
               )}
             </p>
             <p className="form-title">
-              Total del día: $
+              Total de Ganancia: $
               {formatoDinero(
                 ventasFiltradas.reduce(
                   (total, venta) => total + (parseFloat(venta.totalGanancia) || 0),
