@@ -68,6 +68,9 @@ function Login() {
             <Link to="/resetPassword" className="resetPassword">
               Olvidé mi Contraseña
             </Link>
+            {/* <Link to="/registro" className="resetPassword">
+              no tienes cuenta?
+            </Link> */}
           </p>
         </form>
       </div>

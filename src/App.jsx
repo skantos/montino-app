@@ -2,11 +2,12 @@ import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { UserAuth } from "./context/AuthContext";
 
-//Components
+// Components
 import Login from "./components/Login";
 import RecuperarContrasena from "./components/RecuperarContraseña";
+import Registro from "./components/Registro"; // Asegúrate de importar el componente de registro
 
-//Admin
+// Admin
 import RegistrarUsuario from "./components/Administrador/Agregarusuario/RegistrarUsuario";
 import AgregarProducto from "./components/Administrador/AgregarProducto/AgregarProducto";
 import Ventas from "./components/Administrador/Ventas/Ventas";
@@ -15,7 +16,7 @@ import Devolucion from "./components/Administrador/Devolucion/Devolucion";
 import Historial from "./components/Administrador/Historial/Historial";
 import Dashboard from "./components/Administrador/Dashboard/Dashboard";
 
-//Vendedor
+// Vendedor
 import VentaVendedor from "./components/Vendedor/VentaVendedor/VentaVendedor";
 
 function ProtectedRoute({ children, allowedRoles }) {
@@ -34,6 +35,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/registro" element={<Registro />} /> {/* Ruta para el registro */}
       <Route path="/resetPassword" element={<RecuperarContrasena />} />
       <Route
         path="/agregarUsuario"
@@ -91,7 +93,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/vendedor/ventas"
         element={
@@ -100,7 +101,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/unauthorized"
         element={

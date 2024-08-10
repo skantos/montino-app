@@ -238,8 +238,7 @@ const Inventario = () => {
                       <td>{producto.nombreProducto}</td>
                       <td>{formatoDinero(producto.precioProducto || 0)}</td>
                       <td>{formatoDinero(producto.precioOriginal || 0)}</td>
-                      {/* Mostrar Precio Original */}
-                      <td>{formatoDinero(((producto.precioProducto || 0) - (producto.precioOriginal || 0)) * (producto.cantidadProducto || 0))}</td> {/* Calcular y mostrar Ganancias */}
+                      <td>{formatoDinero(((producto.precioProducto || 0) - (producto.precioOriginal || 0)))}</td> 
                       <td>{producto.categoriaProducto}</td>
                       <td>{producto.marcaProducto}</td>
                       <td>
