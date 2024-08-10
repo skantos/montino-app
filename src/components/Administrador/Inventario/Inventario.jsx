@@ -5,6 +5,10 @@ import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import "../../../styles/inventario.css";
 import "../../../styles/ventas.css";
 import { db } from "../../../firebase";
+import { deleteDoc } from "firebase/firestore";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faMinus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Inventario = () => {
   const [productos, setProductos] = useState([]);
@@ -91,6 +95,31 @@ const Inventario = () => {
     setOpenModal(true);
   };
 
+
+  const handleDeleteClick = async (producto) => {
+    // Mostrar confirmación antes de eliminar
+    if (window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+      try {
+        // Elimina el documento del inventario
+        const productRef = doc(db, "productos", producto.idProducto);
+        await deleteDoc(productRef);
+  
+        // Actualiza el estado para reflejar la eliminación
+        setProductos((prevProductos) =>
+          prevProductos.filter((p) => p.idProducto !== producto.idProducto)
+        );
+        setInventarioFiltrado((prevInventario) =>
+          prevInventario.filter((p) => p.idProducto !== producto.idProducto)
+        );
+  
+        alert("Producto eliminado exitosamente");
+      } catch (error) {
+        console.error("Error al eliminar el producto:", error);
+        alert("Error al eliminar el producto. Intente de nuevo.");
+      }
+    }
+  };
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -226,12 +255,18 @@ const Inventario = () => {
                           {producto.cantidadProducto || 0}
                         </p>
                       </td>
-                      <td>
+                      <td className="td-editar">
                         <button
                           className="btn-editar"
                           onClick={() => handleEditClick(producto)}
                         >
-                          Editar
+                          <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        <button
+                          className="btn-eliminar"
+                          onClick={() => handleDeleteClick(producto)}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
                         </button>
                       </td>
                     </tr>

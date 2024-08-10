@@ -13,6 +13,7 @@
 td {
     padding: 1rem;
     border: none; /* Eliminar los bordes */
+    gap: 5px; 
 }
 
 main.table {
@@ -30,7 +31,7 @@ main.table {
 }
 
 .table-body {
-    width: 1100px;
+    width: 1200px;
     max-width: 99%;
     border: 1px solid #EBEBEB;
     height: fit-content;
@@ -197,13 +198,39 @@ tbody td:hover {
     opacity: 0.9;
 }
 
+.td-editar{
+    display: flex; /* Alinea los elementos en una fila */
+    align-items: center; /* Alinea verticalmente el contenido */
+    gap: 5px; /* Espacio entre los botones */
+}
 
+.btn-eliminar {
+    background: #FF0000; 
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 0px 10px; /* Ajusta el padding para controlar el tamaño */
+    max-height: 40px; /* Establece la altura máxima que deseas para los botones */
+    display: inline-flex; /* Asegúrate de que los botones estén en línea */
+    align-items: center; /* Alinea el contenido verticalmente en el centro */
+}
+
+.btn-editar {
+    background: #92D050; 
+    border: none; 
+    cursor: pointer; 
+    padding: 0px 10px; /* Ajusta el padding para controlar el tamaño */
+    border-radius: 5px;
+    max-height: 40px; /* Establece la altura máxima que deseas para los botones */
+    display: inline-flex; /* Asegúrate de que los botones estén en línea */
+    align-items: center; /* Alinea el contenido verticalmente en el centro */
+}
 
 
 
 /* BOTON EDITAR */
 
-.btn-editar {
+/* .btn-editar {
     position: relative;
     padding: 10px 22px;
     border-radius: 6px;
@@ -296,4 +323,4 @@ tbody td:hover {
         110% 10%;
     background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
     }
-}
+} */
