@@ -92,7 +92,15 @@ const Ventas = () => {
         }
       } else {
         if (producto.cantidadProducto >= cantidad) {
-          return [...prevCarrito, { ...producto, cantidad, precioOriginal: producto.precioOriginal }];
+          return [
+            ...prevCarrito,
+            {
+              ...producto,
+              cantidad,
+              precioOriginal: producto.precioOriginal,
+              stockDisponible: producto.cantidadProducto, // Agrega la cantidad de stock disponible
+            },
+          ];
         } else {
           alert("Stock insuficiente");
           return prevCarrito;
@@ -337,6 +345,7 @@ const Ventas = () => {
                     <th className="carrito-th">Precio</th>
                     <th className="carrito-th">Precio Original</th> {/* Nueva columna */}
                     <th className="carrito-th">Cantidad</th>
+                    <th className="carrito-th">Stock</th>
                     <th className="carrito-th">Total</th>
                     <th className="carrito-th">Acciones</th>
                   </tr>
@@ -378,6 +387,21 @@ const Ventas = () => {
                           </button>
                         </p>
                       </td>
+                      
+                      <td>
+                        <p
+                          className={
+                            (producto.stockDisponible || 0) <= 5
+                              ? "cantidad-baja"
+                              : (producto.stockDisponible || 0) <= 15
+                              ? "cantidad-media"
+                              : "cantidad-alta"
+                          }
+                        >
+                          {producto.stockDisponible || 0}
+                        </p>
+                      </td>
+
                       <td className="carrito-td">
                         <p className="txt-carrito">
                           $
