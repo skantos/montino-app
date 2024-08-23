@@ -24,6 +24,12 @@ const Ventas = () => {
   const [vuelto, setVuelto] = useState(0);
   const [idProductoBuscado, setIdProductoBuscado] = useState("");
   const [cantidadBuscada, setCantidadBuscada] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Nuevo estado
+  
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setProductoEditado(null);
+  };
 
   useEffect(() => {
     const getProductos = async () => {
@@ -98,7 +104,7 @@ const Ventas = () => {
               ...producto,
               cantidad,
               precioOriginal: producto.precioOriginal,
-              stockDisponible: producto.cantidadProducto, // Agrega la cantidad de stock disponible
+              stockDisponible: producto.cantidadProducto,
             },
           ];
         } else {
@@ -176,7 +182,9 @@ const Ventas = () => {
       alert("No se puede registrar una venta con un carrito vacío.");
       return; // Salir de la función si el carrito está vacío
     }
-  
+
+    setIsSubmitting(true); // Deshabilitar el botón al inicio del proceso
+
     const fechaVenta = new Date();
     const totalVenta = carrito.reduce(
       (total, producto) => total + producto.precioProducto * producto.cantidad,
@@ -220,6 +228,8 @@ const Ventas = () => {
     } catch (error) {
       setError("Error al registrar la venta");
       console.error("Error al registrar la venta:", error);
+    } finally {
+      setIsSubmitting(false); // Rehabilitar el botón al finalizar el proceso
     }
   };
 
@@ -329,8 +339,9 @@ const Ventas = () => {
                 )}
               </div>
 
-              <button className="boton-venta" onClick={handleSubmit}>
-                <span>Finalizar Venta</span>
+
+              <button className="boton-venta" onClick={handleSubmit} disabled={isSubmitting}>
+                <span>{isSubmitting ? "Procesando..." : "Finalizar Venta"}</span>
               </button>
             </div>
           </div>
