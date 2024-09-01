@@ -65,12 +65,18 @@ const NavbarAdmin = () => {
           </Link>
         </li>
         <li>
-          <Link className={`link ${isActive("/agregarProducto")}`} to="/agregarProducto">
+          <Link
+            className={`link ${isActive("/agregarProducto")}`}
+            to="/agregarProducto"
+          >
             Agregar Producto
           </Link>
         </li>
         <li>
-          <Link className={`link ${isActive("/agregarUsuario")}`} to="/agregarUsuario">
+          <Link
+            className={`link ${isActive("/agregarUsuario")}`}
+            to="/agregarUsuario"
+          >
             Agregar Usuario
           </Link>
         </li>
@@ -87,6 +93,11 @@ const NavbarAdmin = () => {
         <li>
           <Link className={`link ${isActive("/dashboard")}`} to="/dashboard">
             Dashboard
+          </Link>
+        </li>
+        <li>
+          <Link className={`link ${isActive("/tenserFlow")}`} to="/tenserFlow">
+            TenserFlow AI
           </Link>
         </li>
         <li>
@@ -108,12 +119,23 @@ const NavbarAdmin = () => {
           </Link>
         </li>
         <li className="Mobile">
-          <Link className={`link ${isActive("/agregarProducto")}`} to="/agregarProducto">
+          <Link className={`link ${isActive("/tenserFlow")}`} to="/tenserFlow">
+            TenserFlow AI
+          </Link>
+        </li>
+        <li className="Mobile">
+          <Link
+            className={`link ${isActive("/agregarProducto")}`}
+            to="/agregarProducto"
+          >
             Agregar Producto
           </Link>
         </li>
         <li className="Mobile">
-          <Link className={`link ${isActive("/agregarUsuario")}`} to="/agregarUsuario">
+          <Link
+            className={`link ${isActive("/agregarUsuario")}`}
+            to="/agregarUsuario"
+          >
             Agregar Usuario
           </Link>
         </li>

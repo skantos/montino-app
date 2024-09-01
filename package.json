@@ -24,6 +24,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/material": "^5.16.5",
     "@mui/x-date-pickers": "^7.11.1",
+    "@tensorflow/tfjs": "^4.20.0",
     "chart.js": "^4.4.3",
     "date-fns": "^2.29.3",
     "dayjs": "^1.11.12",

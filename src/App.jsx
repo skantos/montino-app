@@ -15,6 +15,7 @@ import Inventario from "./components/Administrador/Inventario/Inventario";
 import Devolucion from "./components/Administrador/Devolucion/Devolucion";
 import Historial from "./components/Administrador/Historial/Historial";
 import Dashboard from "./components/Administrador/Dashboard/Dashboard";
+import TenserFlowAI from "./components/Administrador/TenserFlow/tenserFlow";
 
 // Vendedor
 import VentaVendedor from "./components/Vendedor/VentaVendedor/VentaVendedor";
@@ -35,7 +36,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/registro" element={<Registro />} /> {/* Ruta para el registro */}
+      <Route path="/registro" element={<Registro />} />{" "}
+      {/* Ruta para el registro */}
       <Route path="/resetPassword" element={<RecuperarContrasena />} />
       <Route
         path="/agregarUsuario"
@@ -58,6 +60,14 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tenserFlow"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TenserFlowAI />
           </ProtectedRoute>
         }
       />
