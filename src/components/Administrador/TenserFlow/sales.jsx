@@ -118,7 +118,7 @@ export default function SalesAI() {
     <div>
       <main className="main1">
         <div className="carrito-label-devolucion">
-          <p className="form-title">Predicción del Tipo de Pago por Mes</p>
+          <h1 className="form-title">Predicción del Tipo de Pago por Mes</h1>
           <table className="carrito-tabla">
             <thead className="carrito-th">
               <tr className="carrito-tr">
