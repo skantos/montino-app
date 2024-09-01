@@ -122,7 +122,7 @@ export default function SalesAI() {
           <table className="carrito-tabla">
             <thead className="carrito-th">
               <tr className="carrito-tr">
-                <th className="carrito-th">Mes</th>
+                <th className="carrito-th">Meses</th>
                 <th className="carrito-th">Predicción Tarjeta</th>
                 <th className="carrito-th">Predicción Efectivo</th>
               </tr>
