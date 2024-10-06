@@ -347,9 +347,9 @@ const Ventas = () => {
           </div>
 
           {/* Columna derecha */}
-          <div className="columna-derecha">
-            <section className="tabla-ventas">
-              <table className="carrito-tabla">
+          <div className="columna-derecha" style={{ height: '90vh'}}>
+            <section className="" style={{ maxHeight: '80vh'}}>
+              <table className="carrito-tabla" >
                 <thead className="carrito-th">
                   <tr className="carrito-tr">
                     <th className="carrito-th">Producto</th>
