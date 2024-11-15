@@ -1,7 +1,7 @@
 # 🌟 Montino App 🌟
 **Montino App** es una solución todo-en-uno para la gestión de talleres y tiendas, ofreciendo herramientas avanzadas para el manejo de inventario, ventas y devoluciones de productos. Con interfaces específicas para administradores y vendedores, es perfecta para mejorar la eficiencia y organización en tu negocio.
 
-![Montino App](https://via.placeholder.com/800x400) <!-- Aquí podrías agregar una captura de pantalla de la aplicación -->
+ <!--![Montino App](https://via.placeholder.com/800x400)  -->
 
 ## 🚀 Características Principales
 
@@ -26,11 +26,10 @@
 - **Machine Learning**: TensorFlow para recomendaciones de inventario.
 - **App Wrapper**: Tauri para empaquetar la aplicación como una app de escritorio ligera.
 
-## 📸 Capturas de Pantalla
-<!-- Puedes incluir aquí algunas capturas para mostrar diferentes vistas de la aplicación -->
-| Administrador | Vendedor |
-|---------------|----------|
-| ![Dashboard](https://via.placeholder.com/400x200) | ![Ventas](https://via.placeholder.com/400x200) |
+<!-- ## 📸 Capturas de Pantalla -->
+<!--| Administrador | Vendedor |-->
+<!--|---------------|----------|-->
+<!--| ![Dashboard](https://via.placeholder.com/400x200) | ![Ventas](https://via.placeholder.com/400x200) | -->
 
 ## ⚙️ Instalación
 
@@ -38,6 +37,19 @@
    ```bash
    git clone https://github.com/skantos/montino-app.git
    cd montino-app
+   
 2. **Instala las dependencias**:
+   ```bash
+   npm install
+   
+3. **Ejecuta la aplicación en desarrollo**:
+   ```bash
+   npm run tauri dev
 
+4. **Construye la aplicación para producción**:
+   ```bash
+   npm run tauri build
+
+## 💡 Nota: 
+Montino App está en constante desarrollo; si tienes alguna pregunta o necesitas ayuda, ¡no dudes en contactarnos!
 
